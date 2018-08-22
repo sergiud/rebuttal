@@ -1,0 +1,221 @@
+%% rebuttal.sty
+%% Copyright 2018 Sergiu Deitsch
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+%
+% This work has the LPPL maintenance status `maintained'.
+%
+% The Current Maintainer of this work is Sergiu Deitsch.
+%
+% This work consists of the files rebuttal.sty and letter.tex.
+
+\ProvidesPackage{rebuttal}
+
+\PassOptionsToPackage{authormarkup=none}{changes}
+\PassOptionsToPackage{svgnames,x11names}{xcolor}
+
+\RequirePackage{changes}
+\RequirePackage{etoolbox}
+\RequirePackage{marginnote}
+\RequirePackage{MnSymbol}
+\RequirePackage{pgfkeys}
+\RequirePackage{todonotes}
+\RequirePackage{xcolor}
+\RequirePackage{xstring}
+
+\newcommand\rebuttal@define@keys[2]{
+  \pgfkeys{
+    /rebuttal/#1/label/.initial=,
+    /rebuttal/#1/label/.value required,
+    /rebuttal/#1/ref/.initial=,
+    /rebuttal/#1/ref/.value required,
+    /rebuttal/#1/color/.code=\colorlet{rebuttal@#1}{##1},
+    /rebuttal/#1/color=#2,
+  }
+}
+
+\rebuttal@define@keys{addition}{MediumSeaGreen}
+\rebuttal@define@keys{deletion}{Firebrick3}
+\rebuttal@define@keys{change}{DodgerBlue3}
+
+\newcommand\rebuttal@command[3]{%
+  \newcounter{rebuttal@#1}%
+  \AfterPreamble{%
+    \@ifpackageloaded{cleveref}{%
+      \crefname{rebuttal@#1}{#1}{#1s}%
+    }{}
+  }
+  \expandafter\newcommand\csname #1\endcsname[#3][]{%
+    \refstepcounter{rebuttal@#1}%
+    \begingroup
+      \tikzset{notestyleraw/.append style={
+        inner sep=\z@,
+        rounded corners=\z@,
+      }}%
+      \pgfqkeys{/rebuttal/#1}{##1}%
+      \label{\pgfkeysvalueof{/rebuttal/#1/label}}%
+      \colorlet{Changes@Color}{rebuttal@#1}%
+      #2%%
+      \StrLeft{#1}{1}[\rebuttal@id]%
+      \todo
+      [
+        backgroundcolor=none,
+        bordercolor=none,
+        linecolor=rebuttal@#1,
+        size=\tiny,
+      ]{%
+        \textcolor{rebuttal@#1}{%
+          \bfseries
+          \MakeUppercase{\rebuttal@id}%
+          \csname therebuttal@#1\endcsname
+        }%
+        \ %
+        (\ref{\pgfkeysvalueof{/rebuttal/#1/ref}})%
+      }%
+    \endgroup
+}}
+
+\rebuttal@command{addition}{\added{#2}}{2}
+\rebuttal@command{deletion}{\deleted{#2}}{2}
+\rebuttal@command{change}{\replaced{#2}{#3}}{3}
+
+\def\rebuttalanswerlabel{%
+  \ensuremath{\filledtriangleright}%
+}
+
+\def\rebuttal@responsetitlefont{\normalfont\bfseries}
+\def\rebuttal@reviewcommentfont{\normalfont\itshape}
+\def\rebuttal@reviewanswerfont{\normalfont}
+\def\rebuttal@reviewlabelfont{\normalfont\rmfamily\bfseries}
+\def\rebuttal@changedfont{\normalfont\bfseries\color{red}}
+\def\rebuttal@makehyperlink#1{{\normalfont
+  [{\rebuttal@reviewlabelfont\textcolor{blue}{#1}}]}}
+
+\newenvironment{response}[1]
+{%
+  \begingroup
+  \par
+  \addvspace{\bigskipamount}%
+  \item[]\noindent{\rebuttal@responsetitlefont #1:}%
+  \par\addvspace{\medskipamount}%
+  \@afterheading
+  \begin{list}{\rlap{\rebuttalanswerlabel}}{%
+  \renewcommand{\makelabel}[1]{\rlap{\bfseries{##1}}}
+  \setlength{\parsep}{\smallskipamount}
+  \setlength{\labelsep}{1pt}
+  \setlength{\topsep}{\z@}
+  \setlength{\partopsep}{\bigskipamount}
+  \setlength{\leftmargin}{\z@}}
+}
+{\end{list}\endgroup}
+
+%\addtolength{\marginparwidth}{2cm}
+%
+%\newcommand{\hmarbox}[2]{%
+%  \marginpar{\fbox{\parbox{\marginparwidth}{\hypertarget{#1}{#2}%
+%    \hyperlink{#1back}{back}}}}
+%}
+%\newcommand{\hlink}[2]{\hypertarget{#1back}{}\hyperlink{#1}{!}}
+%\newcommand{\link}[1]{\hyperlink{#1}{{\rebuttal@makehyperlink{#1}}}}
+%\newcommand{\rcomment}[3]{%
+%  \settowidth{\labelwidth}{\rebuttal@reviewlabelfont #1}
+%  \addtolength{\labelwidth}{1em}
+%  \item[{\rebuttal@reviewlabelfont #1}]\hypertarget{#1}{%
+%    {\rebuttal@reviewcommentfont #2}
+%    \settowidth{\labelwidth}{}%
+%    \setlength\itemsep{\smallskipamount}
+%    \item{\rebuttal@reviewanswerfont #3}}%
+%}
+%
+%\renewcommand{\lchange}[2]{%
+%  \reversemarginpar\marginnote[{\parbox[r]{0.5cm}{\hypertarget{#1}{\tiny
+%    {\bfseries #1}}\\#2}}]{}\normalmarginpar}
+%\renewcommand{\change}[2]{\marginnote[{\parbox{0.5cm}{\hypertarget{#1}{\tiny
+%{\bfseries #1}}\\#2}}]{{\parbox{\marginparwidth}{\hypertarget{#1}{\tiny{\bfseries #1}}\\#2}}}}
+%\renewcommand{\changedtext}[1]{\textbf{\color{red} #1}}
+%\renewcommand{\changed}[3]{\change{#1}{#2}{\rebuttal@changedfont #3}}
+%\renewcommand{\lchanged}[3]{\lchange{#1}{#2}{\rebuttal@changedfont #3}}
+
+\newcounter{rebuttal}
+\newcounter{rebuttal@comment}
+\newcounter{rebuttal@answer}
+
+\renewcommand\therebuttal@comment{%
+  \arabic{rebuttal}.\arabic{rebuttal@comment}%
+}
+
+\renewcommand\therebuttal@answer{%
+  \arabic{rebuttal}.\arabic{rebuttal@answer}%
+}
+
+\newcommand\rebuttalcommentname{Foo}
+
+\newdimen\rebuttal@parindent
+\newdimen\rebuttal@parskip
+
+\newenvironment{rebuttal}[1][]{%
+  \begingroup
+  \rebuttal@parindent\parindent
+  \rebuttal@parskip\parskip
+  \setcounter{rebuttal@comment}{0}
+  \refstepcounter{rebuttal}
+  \pagenumbering{roman}
+  \if@twocolumn\onecolumn\fi
+  \begingroup
+  \par
+  \addvspace{\bigskipamount}%
+  \noindent{%
+    \ifstrempty{#1}{}{%
+      \rebuttal@responsetitlefont #1:%
+    }%
+  }%
+  \par\addvspace{\medskipamount}%
+  \@afterheading
+  \begin{list}{\rlap{\rebuttalanswerlabel}}{%
+  \renewcommand{\makelabel}[1]{\rlap{\bfseries{##1}}}
+  \setlength{\parsep}{\smallskipamount}
+  \setlength{\labelsep}{1pt}
+  \setlength{\topsep}{\z@}
+  \setlength{\partopsep}{\bigskipamount}
+  \setlength{\leftmargin}{\z@}}
+  \parindent\rebuttal@parindent
+  \parskip\rebuttal@parskip
+  \newenvironment{comment}{%
+    \refstepcounter{rebuttal@comment}
+    %\settowidth{\labelwidth}{\rebuttal@reviewlabelfont #1}
+    %\addtolength{\labelwidth}{1em}
+    \item[{\rebuttal@reviewlabelfont
+      \therebuttal@comment}]%
+      %\hypertarget{#1}{%
+      \begingroup\rebuttal@reviewcommentfont
+    }{\endgroup}
+  \newenvironment{answer}{%
+    \refstepcounter{rebuttal@answer}
+    \setlength{\labelwidth}{\z@}%
+    \setlength\itemsep{\smallskipamount}
+    \item\quad\begingroup\rebuttal@reviewanswerfont%
+  }{\endgroup}
+}{%
+\end{list}
+  \endgroup
+  \par\addvspace{\bigskipamount}%
+  \endgroup
+}
+
+% Support cleveref
+\AfterPreamble{%
+  \@ifpackageloaded{cleveref}{%
+    \crefname{rebuttal@comment}{comment}{comments}
+    \crefname{rebuttal@answer}{answer}{answers}
+    \Crefname{rebuttal@comment}{Comment}{Comments}
+    \Crefname{rebuttal@answer}{Answer}{Answers}
+  }{}
+}
+
+% vim: ft=tex
