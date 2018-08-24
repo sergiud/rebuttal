@@ -21,13 +21,53 @@
 \PassOptionsToPackage{svgnames,x11names}{xcolor}
 
 \RequirePackage{changes}
+\RequirePackage{calc}
 \RequirePackage{etoolbox}
 \RequirePackage{marginnote}
-\RequirePackage{MnSymbol}
+\RequirePackage{fdsymbol}
 \RequirePackage{pgfkeys}
 \RequirePackage{todonotes}
 \RequirePackage{xcolor}
 \RequirePackage{xstring}
+
+\pgfkeys{
+  /rebuttal/title/font/.store in=\rebuttal@titlefont,
+  /rebuttal/title/font=\normalfont\bfseries,
+  /rebuttal/title/format/.code=#1:,
+  /rebuttal/comment/font/.store in=\rebuttal@commentfont,
+  /rebuttal/comment/font=\normalfont\itshape,
+  /rebuttal/comment/label/font/.store in=\rebuttal@commentlabelfont,
+  /rebuttal/comment/label/font=\normalfont\rmfamily\bfseries,
+  /rebuttal/answer/font/.store in=\rebuttal@answerfont,
+  /rebuttal/answer/font=\normalfont,
+  /rebuttal/answer/label/.store in=\rebuttal@answerlabel,
+  /rebuttal/answer/label={\ensuremath{\smallblacktriangleright}},
+  /rebuttal/answer/label/font/.store in=\rebuttal@answerlabelfont,
+  /rebuttal/answer/label/font=\normalfont,
+  /rebuttal/reference/font/.store in=\rebuttal@referencefont,
+  /rebuttal/reference/font={%
+    \tiny\bfseries%
+  },
+  % TODO does not work within \todo
+  %/rebuttal/reference/.code={%
+  %},
+}
+
+\let\rebuttalanswerlabel\rebuttal@answerlabel
+
+\def\rebuttal@reference#1{%
+  \begingroup
+    \rebuttal@referencefont
+    \begingroup
+      \color{rebuttal@#1}%
+      \MakeUppercase{\rebuttal@id}%
+      \csname therebuttal@#1\endcsname
+    \endgroup
+    \normalfont
+    ~%
+    (\ref{\pgfkeysvalueof{/rebuttal/#1/ref}})%
+  \endgroup
+}
 
 \newcommand\rebuttal@define@keys[2]{
   \pgfkeys{
@@ -37,6 +77,11 @@
     /rebuttal/#1/ref/.value required,
     /rebuttal/#1/color/.code=\colorlet{rebuttal@#1}{##1},
     /rebuttal/#1/color=#2,
+    /rebuttal/#1/font/.value required,
+    /rebuttal/#1/font/.code={
+      \expandafter\def\csname rebuttal@#1@font\endcsname{##1}%
+    },
+    /rebuttal/#1/font=\normalfont\mdseries,
   }
 }
 
@@ -61,22 +106,20 @@
       \pgfqkeys{/rebuttal/#1}{##1}%
       \label{\pgfkeysvalueof{/rebuttal/#1/label}}%
       \colorlet{Changes@Color}{rebuttal@#1}%
-      #2%%
+      \begingroup
+        \@nameuse{rebuttal@#1@font}%
+        #2%
+      \endgroup
       \StrLeft{#1}{1}[\rebuttal@id]%
       \todo
       [
         backgroundcolor=none,
         bordercolor=none,
         linecolor=rebuttal@#1,
-        size=\tiny,
+        %size=\tiny,
       ]{%
-        \textcolor{rebuttal@#1}{%
-          \bfseries
-          \MakeUppercase{\rebuttal@id}%
-          \csname therebuttal@#1\endcsname
-        }%
-        \ %
-        (\ref{\pgfkeysvalueof{/rebuttal/#1/ref}})%
+        \rebuttal@reference{#1}%
+        %\pgfkeys{/rebuttal/reference=#1}
       }%
     \endgroup
 }}
@@ -84,63 +127,6 @@
 \rebuttal@command{addition}{\added{#2}}{2}
 \rebuttal@command{deletion}{\deleted{#2}}{2}
 \rebuttal@command{change}{\replaced{#2}{#3}}{3}
-
-\def\rebuttalanswerlabel{%
-  \ensuremath{\filledtriangleright}%
-}
-
-\def\rebuttal@responsetitlefont{\normalfont\bfseries}
-\def\rebuttal@reviewcommentfont{\normalfont\itshape}
-\def\rebuttal@reviewanswerfont{\normalfont}
-\def\rebuttal@reviewlabelfont{\normalfont\rmfamily\bfseries}
-\def\rebuttal@changedfont{\normalfont\bfseries\color{red}}
-\def\rebuttal@makehyperlink#1{{\normalfont
-  [{\rebuttal@reviewlabelfont\textcolor{blue}{#1}}]}}
-
-\newenvironment{response}[1]
-{%
-  \begingroup
-  \par
-  \addvspace{\bigskipamount}%
-  \item[]\noindent{\rebuttal@responsetitlefont #1:}%
-  \par\addvspace{\medskipamount}%
-  \@afterheading
-  \begin{list}{\rlap{\rebuttalanswerlabel}}{%
-  \renewcommand{\makelabel}[1]{\rlap{\bfseries{##1}}}
-  \setlength{\parsep}{\smallskipamount}
-  \setlength{\labelsep}{1pt}
-  \setlength{\topsep}{\z@}
-  \setlength{\partopsep}{\bigskipamount}
-  \setlength{\leftmargin}{\z@}}
-}
-{\end{list}\endgroup}
-
-%\addtolength{\marginparwidth}{2cm}
-%
-%\newcommand{\hmarbox}[2]{%
-%  \marginpar{\fbox{\parbox{\marginparwidth}{\hypertarget{#1}{#2}%
-%    \hyperlink{#1back}{back}}}}
-%}
-%\newcommand{\hlink}[2]{\hypertarget{#1back}{}\hyperlink{#1}{!}}
-%\newcommand{\link}[1]{\hyperlink{#1}{{\rebuttal@makehyperlink{#1}}}}
-%\newcommand{\rcomment}[3]{%
-%  \settowidth{\labelwidth}{\rebuttal@reviewlabelfont #1}
-%  \addtolength{\labelwidth}{1em}
-%  \item[{\rebuttal@reviewlabelfont #1}]\hypertarget{#1}{%
-%    {\rebuttal@reviewcommentfont #2}
-%    \settowidth{\labelwidth}{}%
-%    \setlength\itemsep{\smallskipamount}
-%    \item{\rebuttal@reviewanswerfont #3}}%
-%}
-%
-%\renewcommand{\lchange}[2]{%
-%  \reversemarginpar\marginnote[{\parbox[r]{0.5cm}{\hypertarget{#1}{\tiny
-%    {\bfseries #1}}\\#2}}]{}\normalmarginpar}
-%\renewcommand{\change}[2]{\marginnote[{\parbox{0.5cm}{\hypertarget{#1}{\tiny
-%{\bfseries #1}}\\#2}}]{{\parbox{\marginparwidth}{\hypertarget{#1}{\tiny{\bfseries #1}}\\#2}}}}
-%\renewcommand{\changedtext}[1]{\textbf{\color{red} #1}}
-%\renewcommand{\changed}[3]{\change{#1}{#2}{\rebuttal@changedfont #3}}
-%\renewcommand{\lchanged}[3]{\lchange{#1}{#2}{\rebuttal@changedfont #3}}
 
 \newcounter{rebuttal}
 \newcounter{rebuttal@comment}
@@ -150,19 +136,29 @@
   \arabic{rebuttal}.\arabic{rebuttal@comment}%
 }
 
+\let\theHrebuttal@comment\therebuttal@comment
+
 \renewcommand\therebuttal@answer{%
   \arabic{rebuttal}.\arabic{rebuttal@answer}%
 }
 
-\newcommand\rebuttalcommentname{Foo}
-
 \newdimen\rebuttal@parindent
 \newdimen\rebuttal@parskip
+\newdimen\rebuttal@labelsep
+\newdimen\rebuttal@leftmargin
+
+\newcommand\rebuttal@restorepar{%
+  \parindent\rebuttal@parindent%
+  \parskip\rebuttal@parskip%
+}
+
+\newcommand\rebuttal@storepar{%
+  \rebuttal@parindent\parindent
+  \rebuttal@parskip\parskip
+}
 
 \newenvironment{rebuttal}[1][]{%
   \begingroup
-  \rebuttal@parindent\parindent
-  \rebuttal@parskip\parskip
   \setcounter{rebuttal@comment}{0}
   \refstepcounter{rebuttal}
   \pagenumbering{roman}
@@ -170,39 +166,65 @@
   \begingroup
   \par
   \addvspace{\bigskipamount}%
-  \noindent{%
-    \ifstrempty{#1}{}{%
-      \rebuttal@responsetitlefont #1:%
-    }%
+  \ifstrempty{#1}{}{%
+    \ifx\pdfbookmark\@undefined\else
+      \pdfbookmark{#1}{rebuttalcomment.\therebuttal@comment}%
+    \fi
+    \noindent\rebuttal@titlefont\strut
+    \pgfkeys{/rebuttal/title/format=#1}%
   }%
-  \par\addvspace{\medskipamount}%
+  \par%
+  \vspace*{\medskipamount}%
   \@afterheading
-  \begin{list}{\rlap{\rebuttalanswerlabel}}{%
-  \renewcommand{\makelabel}[1]{\rlap{\bfseries{##1}}}
-  \setlength{\parsep}{\smallskipamount}
-  \setlength{\labelsep}{1pt}
-  \setlength{\topsep}{\z@}
-  \setlength{\partopsep}{\bigskipamount}
-  \setlength{\leftmargin}{\z@}}
-  \parindent\rebuttal@parindent
-  \parskip\rebuttal@parskip
+  \rebuttal@storepar
+  \begin{list}{\rebuttal@answerlabel}{%
+    \let\rebuttal@oldmakelabel\makelabel%
+    \renewcommand{\makelabel}[1]{\rlap{\rebuttal@commentlabelfont ##1}}%
+    %\setlength{\parsep}{\smallskipamount}%
+    %\setlength{\labelsep}{1pt}%
+    %\setlength{\topsep}{\z@}%
+    %\setlength{\partopsep}{\bigskipamount}
+    \rebuttal@leftmargin\leftmargin
+    \setlength{\leftmargin}{\z@}%
+  }
   \newenvironment{comment}{%
+    \preto\item{%
+      \pdfbookmark[1]{Comment~\therebuttal@comment}{rebuttal@comment.\therebuttal@comment}%
+    }
+    \rebuttal@restorepar
+    % Do not allow to place answers within a comment by undefining the answer
+    % environment
+    \let\answer\@undefined
+    \let\endanswer\@undefined
     \refstepcounter{rebuttal@comment}
-    %\settowidth{\labelwidth}{\rebuttal@reviewlabelfont #1}
+    %\settowidth{\labelwidth}{\rebuttal@commentlabelfont #1}
     %\addtolength{\labelwidth}{1em}
-    \item[{\rebuttal@reviewlabelfont
-      \therebuttal@comment}]%
-      %\hypertarget{#1}{%
-      \begingroup\rebuttal@reviewcommentfont
-    }{\endgroup}
+    \item
+    [%
+      \therebuttal@comment%
+    ]%
+    \begingroup
+    \rebuttal@commentfont
+    \let\makelabel\rebuttal@oldmakelabel
+  }{\endgroup}
   \newenvironment{answer}{%
+    \normalfont\rebuttal@answerfont%
+    \rebuttal@restorepar
+    \rebuttal@labelsep\labelsep
+    \newcommand\rebuttal@makelabel[1]{\rebuttal@answerlabelfont ####1\enspace}
+    \renewcommand\makelabel[1]{\rebuttal@makelabel{####1}}
     \refstepcounter{rebuttal@answer}
-    \setlength{\labelwidth}{\z@}%
-    \setlength\itemsep{\smallskipamount}
-    \item\quad\begingroup\rebuttal@reviewanswerfont%
+    %\settowidth\labelwidth{\rebuttal@makelabel{\rebuttal@answerlabel}}%
+    \labelwidth\z@
+    \labelsep\z@
+    %\labelwidth=-1\labelwidth
+    %\addtolength\labelwidth{-.5\labelwidth}%
+    \pdfbookmark[2]{Anwser to~\therebuttal@comment}{rebuttal@answer.\therebuttal@answer}%
+    \item\begingroup
+    \labelsep\rebuttal@labelsep
   }{\endgroup}
 }{%
-\end{list}
+  \end{list}%
   \endgroup
   \par\addvspace{\bigskipamount}%
   \endgroup
@@ -216,6 +238,10 @@
     \Crefname{rebuttal@comment}{Comment}{Comments}
     \Crefname{rebuttal@answer}{Answer}{Answers}
   }{}
+}
+
+\newcommand\rebuttalset[1]{%
+  \pgfqkeys{/rebuttal}{#1}%
 }
 
 % vim: ft=tex
