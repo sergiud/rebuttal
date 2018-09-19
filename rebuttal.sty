@@ -20,11 +20,12 @@
 \PassOptionsToPackage{authormarkup=none}{changes}
 \PassOptionsToPackage{svgnames,x11names}{xcolor}
 
-\RequirePackage{changes}
 \RequirePackage{calc}
+\RequirePackage{changes}
 \RequirePackage{etoolbox}
-\RequirePackage{marginnote}
 \RequirePackage{fdsymbol}
+\RequirePackage{marginnote}
+\RequirePackage{pdfcomment}
 \RequirePackage{pgfkeys}
 \RequirePackage{todonotes}
 \RequirePackage{xcolor}
@@ -157,11 +158,12 @@
   \rebuttal@parskip\parskip
 }
 
+% TODO Comment labels tooltips
 \newenvironment{rebuttal}[1][]{%
   \begingroup
   \setcounter{rebuttal@comment}{0}
-  \refstepcounter{rebuttal}
-  \pagenumbering{roman}
+  \refstepcounter{rebuttal}%
+  \pagenumbering{roman}%
   \if@twocolumn\onecolumn\fi
   \begingroup
   \par
@@ -177,9 +179,9 @@
   \vspace*{\medskipamount}%
   \@afterheading
   \rebuttal@storepar
-  \begin{list}{\rebuttal@answerlabel}{%
+  \begin{list}{\pdftooltip{\rebuttal@answerlabel}{Reply}}{%
     \let\rebuttal@oldmakelabel\makelabel%
-    \renewcommand{\makelabel}[1]{\rlap{\rebuttal@commentlabelfont ##1}}%
+    \renewcommand\makelabel[1]{\rlap{\rebuttal@commentlabelfont ##1}\hfil\null}%
     %\setlength{\parsep}{\smallskipamount}%
     %\setlength{\labelsep}{1pt}%
     %\setlength{\topsep}{\z@}%
