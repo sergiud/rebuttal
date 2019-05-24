@@ -64,9 +64,14 @@
 }
 
 \newif\ifrebuttal@marked
+\newif\ifrebuttal@nohyperlinks
 
 \pgfkeys{
   /rebuttal/.is family,
+  /rebuttal/execute on begin/.initial=,
+  /rebuttal/execute on end/.initial=,
+  /rebuttal/no hyperlinks/.is if=rebuttal@nohyperlinks,
+  /rebuttal/no hyperlinks=false,
   /rebuttal/marked/.is if=rebuttal@marked,
   /rebuttal/marked=true,
   /rebuttal/title/font/.store in=\rebuttal@titlefont,
@@ -103,8 +108,14 @@
       \csname therebuttal#1\endcsname
     \endgroup
     \normalfont
+    % Reset color (TODO Maybe allow to modify the color)
+    \color{black}%
     ~%
-    (\ref{\pgfkeysvalueof{/rebuttal/#1/ref}})%
+    \ifrebuttal@nohyperlinks
+      (\ref*{\pgfkeysvalueof{/rebuttal/#1/ref}})%
+    \else
+      (\ref{\pgfkeysvalueof{/rebuttal/#1/ref}})%
+    \fi
   \endgroup
 }
 
@@ -227,8 +238,29 @@
   \rebuttal@parskip\parskip
 }
 
+% Disable hyperlinks if NoHyper environment is available
+\newcommand\rebuttal@startlinkguard{%
+  \ifx\NoHyper\@undefined\else
+    \ifrebuttal@nohyperlinks
+      \begin{NoHyper}%
+    \fi
+  \fi
+}
+
+% End of disable hyperlinks if NoHyper environment is available
+\newcommand\rebuttal@endlinkguard{
+  \ifx\endNoHyper\@undefined\else
+    \ifrebuttal@nohyperlinks
+      \end{NoHyper}%
+    \fi
+  \fi
+}
+
 % TODO Comment labels tooltips
 \newenvironment{rebuttal}[1][]{%
+  \rebuttal@startlinkguard
+  % Execute user code
+  \pgfkeysvalueof{/rebuttal/execute on begin}%
   \begingroup
   \refstepcounter{rebuttal}%
   \if@twocolumn\onecolumn\fi
@@ -325,6 +357,9 @@
   \endgroup
   \par\addvspace{\bigskipamount}%
   \endgroup
+  % Execute user code
+  \pgfkeysvalueof{/rebuttal/execute on end}%
+  \rebuttal@endlinkguard
 }
 
 % Support cleveref
