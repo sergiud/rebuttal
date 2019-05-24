@@ -17,21 +17,58 @@
 
 \ProvidesPackage{rebuttal}
 
-\PassOptionsToPackage{authormarkup=none}{changes}
-\PassOptionsToPackage{svgnames,x11names}{xcolor}
-
 \RequirePackage{calc}
-\RequirePackage{changes}
 \RequirePackage{etoolbox}
-\RequirePackage{fdsymbol}
 \RequirePackage{marginnote}
-\RequirePackage{pdfcomment}
 \RequirePackage{pgfkeys}
 \RequirePackage{todonotes}
 \RequirePackage{xcolor}
 \RequirePackage{xstring}
+\RequirePackage{tikz}
+
+\AtEndPreamble{
+  \RequirePackage{pdfcomment}
+}
+
+\ifx\counterwithin\@undefined
+\RequirePackage{chngcntr}
+\fi
+
+\ExecuteOptions{svgnames,x11names}
+
+\newcommand\rebuttal@triangle{%
+  \begingroup
+  \ifx\tikzexternaldisable\@undefined\else
+    \tikzexternaldisable
+  \fi
+  \begin{tikzpicture}[x=.5em,y=.5em]
+    \fill[/rebuttal/answer/label] (0,0) -- (0,1) -- (.75,.5) -- cycle;
+  \end{tikzpicture}%
+  \endgroup
+}
+
+\newcommand\rebuttal@decbookmarklevel{%
+  \ifx\Hy@currentbookmarklevel\@undefined\else
+    \@tempcnta\Hy@currentbookmarklevel
+    \advance\@tempcnta by -1 %
+    \xdef\Hy@currentbookmarklevel{\the\@tempcnta}%
+  \fi
+}
+
+\newcommand\rebuttal@incbookmarklevel{%
+  \ifx\Hy@currentbookmarklevel\@undefined\else
+    \@tempcnta\Hy@currentbookmarklevel
+    \advance\@tempcnta by 1 %
+    \xdef\Hy@currentbookmarklevel{\the\@tempcnta}%
+  \fi
+}
+
+\newif\ifrebuttal@marked
 
 \pgfkeys{
+  /rebuttal/.is family,
+  /rebuttal/marked/.is if=rebuttal@marked,
+  /rebuttal/marked=true,
   /rebuttal/title/font/.store in=\rebuttal@titlefont,
   /rebuttal/title/font=\normalfont\bfseries,
   /rebuttal/title/format/.code=#1:,
@@ -42,9 +79,10 @@
   /rebuttal/answer/font/.store in=\rebuttal@answerfont,
   /rebuttal/answer/font=\normalfont,
   /rebuttal/answer/label/.store in=\rebuttal@answerlabel,
-  /rebuttal/answer/label={\ensuremath{\smallblacktriangleright}},
+  /rebuttal/answer/label={\rebuttal@triangle},
   /rebuttal/answer/label/font/.store in=\rebuttal@answerlabelfont,
   /rebuttal/answer/label/font=\normalfont,
+  /rebuttal/answer/label/.style={black!65},
   /rebuttal/reference/font/.store in=\rebuttal@referencefont,
   /rebuttal/reference/font={%
     \tiny\bfseries%
@@ -56,13 +94,13 @@
 
 \let\rebuttalanswerlabel\rebuttal@answerlabel
 
-\def\rebuttal@reference#1{%
+\newcommand\rebuttal@reference[1]{%
   \begingroup
     \rebuttal@referencefont
     \begingroup
       \color{rebuttal@#1}%
       \MakeUppercase{\rebuttal@id}%
-      \csname therebuttal@#1\endcsname
+      \csname therebuttal#1\endcsname
     \endgroup
     \normalfont
     ~%
@@ -76,7 +114,7 @@
     /rebuttal/#1/label/.value required,
     /rebuttal/#1/ref/.initial=,
     /rebuttal/#1/ref/.value required,
-    /rebuttal/#1/color/.code=\colorlet{rebuttal@#1}{##1},
+    /rebuttal/#1/color/.code={\colorlet{rebuttal@#1}{##1}},
     /rebuttal/#1/color=#2,
     /rebuttal/#1/font/.value required,
     /rebuttal/#1/font/.code={
@@ -86,62 +124,93 @@
   }
 }
 
-\rebuttal@define@keys{addition}{MediumSeaGreen}
+\rebuttal@define@keys{addition}{RedViolet}
 \rebuttal@define@keys{deletion}{Firebrick3}
 \rebuttal@define@keys{change}{DodgerBlue3}
 
+\newlength\rebuttal@textwidth
+\newlength\rebuttal@hskip
+
 \newcommand\rebuttal@command[3]{%
-  \newcounter{rebuttal@#1}%
-  \AfterPreamble{%
+  \newcounter{rebuttal#1}%
+  \AtEndPreamble{%
     \@ifpackageloaded{cleveref}{%
-      \crefname{rebuttal@#1}{#1}{#1s}%
-    }{}
-  }
+      \crefname{rebuttal#1}{#1}{#1s}%
+    }{}%
+  }%
+  % Marked version with full output
   \expandafter\newcommand\csname #1\endcsname[#3][]{%
-    \refstepcounter{rebuttal@#1}%
-    \begingroup
-      \tikzset{notestyleraw/.append style={
-        inner sep=\z@,
-        rounded corners=\z@,
-      }}%
-      \pgfqkeys{/rebuttal/#1}{##1}%
-      \label{\pgfkeysvalueof{/rebuttal/#1/label}}%
-      \colorlet{Changes@Color}{rebuttal@#1}%
+    \ifrebuttal@marked
+      \stepcounter{rebuttalchanges}%
+      \refstepcounter{rebuttal#1}%
       \begingroup
-        \@nameuse{rebuttal@#1@font}%
-        #2%
+        \tikzset{notestyleraw/.append style={
+          inner sep=\z@,
+          rounded corners=\z@,
+        }}%
+        \pgfqkeys{/rebuttal/#1}{##1}%
+        \label{\pgfkeysvalueof{/rebuttal/#1/label}}%
+        \colorlet{Changes@Color}{rebuttal@#1}%
+        \begingroup
+          \@nameuse{rebuttal@#1@font}%
+          \textcolor{rebuttal@#1}{##2}%
+        \endgroup
+        \StrLeft{#1}{1}[\rebuttal@id]%
+        \ifx\tikzexternaldisable\@undefined\else
+          \tikzexternaldisable
+        \fi
+        % Shrink to text
+        \settowidth\rebuttal@textwidth{\rebuttal@reference{#1}}%
+        \tikzset{notestyleraw/.append style={text width=\rebuttal@textwidth}}%
+        % Place labels in left margin at the same distance as on the right
+        \setlength\rebuttal@hskip{\marginparwidth}%
+        \addtolength\rebuttal@hskip{-\rebuttal@textwidth}%
+        \let\old@xmpar\@xmpar
+        % Hook into LaTeX kernel command since \if@firstcolumn is not unreliable
+        % because margin notes are floats.
+        \renewcommand\@xmpar[2][]{%
+          \old@xmpar[\hspace*{\rebuttal@hskip}####1]{####2}%
+        }%
+        \todo
+        [
+          backgroundcolor=none,
+          bordercolor=none,
+          linecolor=rebuttal@#1,
+          %size=\tiny,
+        ]{%
+          \rebuttal@reference{#1}%
+          %\pgfkeys{/rebuttal/reference=#1}
+        }%
       \endgroup
-      \StrLeft{#1}{1}[\rebuttal@id]%
-      \todo
-      [
-        backgroundcolor=none,
-        bordercolor=none,
-        linecolor=rebuttal@#1,
-        %size=\tiny,
-      ]{%
-        \rebuttal@reference{#1}%
-        %\pgfkeys{/rebuttal/reference=#1}
-      }%
-    \endgroup
-}}
+    \else
+      ##2%
+    \fi
+  }%
+}
 
 \rebuttal@command{addition}{\added{#2}}{2}
 \rebuttal@command{deletion}{\deleted{#2}}{2}
 \rebuttal@command{change}{\replaced{#2}{#3}}{3}
 
+\newcounter{rebuttalcomments}
+\newcounter{rebuttalchanges}
+
 \newcounter{rebuttal}
-\newcounter{rebuttal@comment}
-\newcounter{rebuttal@answer}
+\newcounter{rebuttalcomment}
+\newcounter{rebuttalanswer}
 
-\renewcommand\therebuttal@comment{%
-  \arabic{rebuttal}.\arabic{rebuttal@comment}%
+\renewcommand\therebuttalcomment{%
+  \arabic{rebuttal}.\arabic{rebuttalcomment}%
 }
 
-\let\theHrebuttal@comment\therebuttal@comment
+\let\theHrebuttalcomment\therebuttalcomment
 
-\renewcommand\therebuttal@answer{%
-  \arabic{rebuttal}.\arabic{rebuttal@answer}%
+\renewcommand\therebuttalanswer{%
+  \therebuttalcomment%
 }
+
+\counterwithin*{rebuttalcomment}{rebuttal}%
+\counterwithin*{rebuttalanswer}{rebuttalcomment}%
 
 \newdimen\rebuttal@parindent
 \newdimen\rebuttal@parskip
@@ -161,85 +230,128 @@
 % TODO Comment labels tooltips
 \newenvironment{rebuttal}[1][]{%
   \begingroup
-  \setcounter{rebuttal@comment}{0}
   \refstepcounter{rebuttal}%
-  \pagenumbering{roman}%
   \if@twocolumn\onecolumn\fi
   \begingroup
   \par
   \addvspace{\bigskipamount}%
   \ifstrempty{#1}{}{%
-    \ifx\pdfbookmark\@undefined\else
-      \pdfbookmark{#1}{rebuttalcomment.\therebuttal@comment}%
+    \ifx\subpdfbookmark\@undefined\else
+      \subpdfbookmark{#1}{rebuttalcomment.\therebuttalcomment}%
     \fi
-    \noindent\rebuttal@titlefont\strut
-    \pgfkeys{/rebuttal/title/format=#1}%
+    \noindent\bgroup\rebuttal@titlefont\strut
+    \pgfkeys{/rebuttal/title/format=#1}\egroup%
   }%
   \par%
-  \vspace*{\medskipamount}%
   \@afterheading
+  \vspace*{\medskipamount}%
   \rebuttal@storepar
-  \begin{list}{\pdftooltip{\rebuttal@answerlabel}{Reply}}{%
+  \begin{list}{}{%
     \let\rebuttal@oldmakelabel\makelabel%
-    \renewcommand\makelabel[1]{\rlap{\rebuttal@commentlabelfont ##1}\hfil\null}%
+    \renewcommand\makelabel[1]{\llap{\rebuttal@commentlabelfont ##1}}%
+    \labelwidth\z@
     %\setlength{\parsep}{\smallskipamount}%
     %\setlength{\labelsep}{1pt}%
     %\setlength{\topsep}{\z@}%
     %\setlength{\partopsep}{\bigskipamount}
     \rebuttal@leftmargin\leftmargin
     \setlength{\leftmargin}{\z@}%
-  }
+  }%
+  \let\comment\@undefined
+  \let\endcomment\@undefined
   \newenvironment{comment}{%
+    \rebuttal@incbookmarklevel
     \preto\item{%
-      \pdfbookmark[1]{Comment~\therebuttal@comment}{rebuttal@comment.\therebuttal@comment}%
+      \ifx\currentpdfbookmark\@undefined\else
+        \currentpdfbookmark{Comment~\therebuttalcomment}{rebuttalcomment.\therebuttalcomment}%
+      \fi
     }
     \rebuttal@restorepar
     % Do not allow to place answers within a comment by undefining the answer
     % environment
     \let\answer\@undefined
     \let\endanswer\@undefined
-    \refstepcounter{rebuttal@comment}
+    \stepcounter{rebuttalcomments}%
+    \refstepcounter{rebuttalcomment}
     %\settowidth{\labelwidth}{\rebuttal@commentlabelfont #1}
     %\addtolength{\labelwidth}{1em}
     \item
     [%
-      \therebuttal@comment%
+      \therebuttalcomment%
     ]%
     \begingroup
     \rebuttal@commentfont
     \let\makelabel\rebuttal@oldmakelabel
-  }{\endgroup}
+  }{%
+    \endgroup
+    \rebuttal@decbookmarklevel
+  }
   \newenvironment{answer}{%
-    \normalfont\rebuttal@answerfont%
+    \par\medskip
+    \@afterheading
+    \rebuttal@incbookmarklevel
     \rebuttal@restorepar
-    \rebuttal@labelsep\labelsep
-    \newcommand\rebuttal@makelabel[1]{\rebuttal@answerlabelfont ####1\enspace}
-    \renewcommand\makelabel[1]{\rebuttal@makelabel{####1}}
-    \refstepcounter{rebuttal@answer}
-    %\settowidth\labelwidth{\rebuttal@makelabel{\rebuttal@answerlabel}}%
-    \labelwidth\z@
-    \labelsep\z@
-    %\labelwidth=-1\labelwidth
-    %\addtolength\labelwidth{-.5\labelwidth}%
-    \pdfbookmark[2]{Anwser to~\therebuttal@comment}{rebuttal@answer.\therebuttal@answer}%
-    \item\begingroup
-    \labelsep\rebuttal@labelsep
-  }{\endgroup}
+    \begin{trivlist}
+      \ifx\belowpdfbookmark\@undefined\else
+        \belowpdfbookmark{Anwser to~\therebuttalcomment}{rebuttalanswer.\therebuttalanswer}%
+      \fi
+      \normalfont\rebuttal@answerfont%
+      \rebuttal@labelsep\labelsep%
+      \newcommand\rebuttal@makelabel[1]{\rebuttal@answerlabelfont ####1\enspace}
+      \renewcommand\makelabel[1]{\rebuttal@makelabel{####1}}%
+      \labelsep\z@
+      \labelwidth\z@
+      \let\makelabel\empty
+      %\settowidth\labelwidth{\rebuttal@makelabel{\rebuttal@answerlabel}}%
+      \item
+        [%
+          \ifx\pdftooltip\@undefined
+            \llap{\rebuttal@answerlabel\enspace}%
+          \else
+            \llap{\pdftooltip{\rebuttal@answerlabel}{Reply}\enspace}%
+          \fi
+        ]%
+        \begingroup
+        \labelsep\rebuttal@labelsep
+        \refstepcounter{rebuttalanswer}%
+  }{%
+    \endgroup
+    \end{trivlist}%
+    \rebuttal@decbookmarklevel
+  }
 }{%
   \end{list}%
+  \rebuttal@decbookmarklevel
   \endgroup
   \par\addvspace{\bigskipamount}%
   \endgroup
 }
 
 % Support cleveref
-\AfterPreamble{%
+\AtEndPreamble{%
   \@ifpackageloaded{cleveref}{%
-    \crefname{rebuttal@comment}{comment}{comments}
-    \crefname{rebuttal@answer}{answer}{answers}
-    \Crefname{rebuttal@comment}{Comment}{Comments}
-    \Crefname{rebuttal@answer}{Answer}{Answers}
+    \crefname{rebuttalcomment}{comment}{comments}
+    \crefname{rebuttalanswer}{answer}{answers}
+    \Crefname{rebuttalcomment}{Comment}{Comments}
+    \Crefname{rebuttalanswer}{Answer}{Answers}
   }{}
+}
+
+\newcommand\rebuttaltotalcomments{%
+  \textbf{??}%
+  \@latex@warning{Reference \string\rebuttaltotalcomments\space on page \thepage\space undefined}%
+}
+
+\newcommand\rebuttaltotalchanges{%
+  \textbf{??}%
+  \@latex@warning{Reference \string\rebuttaltotalchanges\space on page \thepage\space undefined}%
+}
+
+\AtEndDocument{%
+  \immediate\write\@auxout{%
+    \gdef\string\rebuttaltotalcomments{\arabic{rebuttalcomments}}%
+    \gdef\string\rebuttaltotalchanges{\arabic{rebuttalchanges}}%
+  }
 }
 
 \newcommand\rebuttalset[1]{%
