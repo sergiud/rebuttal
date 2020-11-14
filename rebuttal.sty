@@ -25,6 +25,7 @@
 \RequirePackage{pgfkeys}
 \RequirePackage{tikz}
 \RequirePackage{todonotes}
+\RequirePackage{ulem}
 \RequirePackage{xcolor}
 \RequirePackage{xstring}
 
@@ -77,6 +78,8 @@
   /rebuttal/title/font/.store in=\rebuttal@titlefont,
   /rebuttal/title/font=\normalfont\bfseries,
   /rebuttal/title/format/.code=#1:,
+  /rebuttal/change/from command/.store in=\rebuttal@changefrom,
+  /rebuttal/change/from command=\sout,
   /rebuttal/comment/font/.store in=\rebuttal@commentfont,
   /rebuttal/comment/font=\normalfont\itshape,
   /rebuttal/comment/label/font/.store in=\rebuttal@commentlabelfont,
@@ -163,8 +166,8 @@
         \label{\pgfkeysvalueof{/rebuttal/#1/label}}%
         \colorlet{Changes@Color}{rebuttal@#1}%
         \begingroup
-          \@nameuse{rebuttal@#1@font}%
-          \textcolor{rebuttal@#1}{##2}%
+          % Main content
+          #2%
         \endgroup
         \StrLeft{#1}{1}[\rebuttal@id]%
         \ifx\tikzexternaldisable\@undefined\else
@@ -199,9 +202,25 @@
   }%
 }
 
-\rebuttal@command{addition}{\added{#2}}{2}
-\rebuttal@command{deletion}{\deleted{#2}}{2}
-\rebuttal@command{change}{\replaced{#2}{#3}}{3}
+\newcommand\rebuttal@added[1]{%
+  \rebuttal@addition@font%
+  \textcolor{rebuttal@addition}{#1}%
+}
+
+\newcommand\rebuttal@deleted[1]{%
+  \rebuttal@deletion@font%
+  \textcolor{rebuttal@deletion}{#1}%
+}
+
+\newcommand\rebuttal@replaced[2]{%
+  \rebuttal@change@font%
+  \textcolor{rebuttal@change}{\rebuttal@changefrom{#1}}%
+  \textcolor{rebuttal@change}{#2}%
+}
+
+\rebuttal@command{addition}{\rebuttal@added{#2}}{2}
+\rebuttal@command{deletion}{\rebuttal@deleted{#2}}{2}
+\rebuttal@command{change}{\rebuttal@replaced{#2}{#3}}{3}
 
 \newcounter{rebuttalcomments}
 \newcounter{rebuttalchanges}
