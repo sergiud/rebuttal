@@ -80,6 +80,8 @@
   /rebuttal/title/format/.code=#1:,
   /rebuttal/change/from command/.store in=\rebuttal@changefrom,
   /rebuttal/change/from command=\sout,
+  /rebuttal/deletion/command/.store in=\rebuttal@delete,
+  /rebuttal/deletion/command=\xout,
   /rebuttal/comment/font/.store in=\rebuttal@commentfont,
   /rebuttal/comment/font=\normalfont\itshape,
   /rebuttal/comment/label/font/.store in=\rebuttal@commentlabelfont,
@@ -209,7 +211,7 @@
 
 \newcommand\rebuttal@deleted[1]{%
   \rebuttal@deletion@font%
-  \textcolor{rebuttal@deletion}{#1}%
+  \textcolor{rebuttal@deletion}{\rebuttal@delete{#1}}%
 }
 
 \newcommand\rebuttal@replaced[2]{%
