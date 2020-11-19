@@ -80,6 +80,8 @@
   /rebuttal/title/format/.code=#1:,
   /rebuttal/change/from command/.store in=\rebuttal@changefrom,
   /rebuttal/change/from command=\sout,
+  /rebuttal/change/from color/.code={\colorlet{rebuttal@change@from}{#1}},
+  /rebuttal/change/from color=DodgerBlue3!50,
   /rebuttal/deletion/command/.store in=\rebuttal@delete,
   /rebuttal/deletion/command=\xout,
   /rebuttal/comment/font/.store in=\rebuttal@commentfont,
@@ -216,7 +218,7 @@
 
 \newcommand\rebuttal@replaced[2]{%
   \rebuttal@change@font%
-  \textcolor{rebuttal@change}{\rebuttal@changefrom{#1}}%
+  \textcolor{rebuttal@change@from}{\rebuttal@changefrom{#1}}%
   \textcolor{rebuttal@change}{#2}%
 }
 
