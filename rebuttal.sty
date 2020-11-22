@@ -246,20 +246,7 @@
 \counterwithin*{rebuttalcomment}{rebuttal}%
 \counterwithin*{rebuttalanswer}{rebuttalcomment}%
 
-\newdimen\rebuttal@parindent
-\newdimen\rebuttal@parskip
 \newdimen\rebuttal@labelsep
-\newdimen\rebuttal@leftmargin
-
-\newcommand\rebuttal@restorepar{%
-  \parindent\rebuttal@parindent%
-  \parskip\rebuttal@parskip%
-}
-
-\newcommand\rebuttal@storepar{%
-  \rebuttal@parindent\parindent
-  \rebuttal@parskip\parskip
-}
 
 % Disable hyperlinks if NoHyper environment is available
 \newcommand\rebuttal@startlinkguard{%
@@ -300,18 +287,14 @@
   \par%
   \@afterheading
   \vspace*{\medskipamount}%
-  \rebuttal@storepar
-  \begin{list}{}{%
-    \let\rebuttal@oldmakelabel\makelabel%
-    \renewcommand\makelabel[1]{\llap{\rebuttal@commentlabelfont ##1}}%
-    \labelwidth\z@
-    %\setlength{\parsep}{\smallskipamount}%
-    %\setlength{\labelsep}{1pt}%
-    %\setlength{\topsep}{\z@}%
-    %\setlength{\partopsep}{\bigskipamount}
-    \rebuttal@leftmargin\leftmargin
-    \setlength{\leftmargin}{\z@}%
-  }%
+  \begin{trivlist}%
+  \let\rebuttal@oldmakelabel\makelabel%
+  \renewcommand\makelabel[1]{\llap{\rebuttal@commentlabelfont ##1}}%
+  \labelwidth\z@
+  %\setlength{\parsep}{\smallskipamount}%
+  %\setlength{\labelsep}{1pt}%
+  %\setlength{\topsep}{\z@}%
+  %\setlength{\partopsep}{\bigskipamount}
   \let\comment\@undefined
   \let\endcomment\@undefined
   \newenvironment{comment}{%
@@ -321,7 +304,6 @@
         \currentpdfbookmark{Comment~\therebuttalcomment}{rebuttalcomment.\therebuttalcomment}%
       \fi
     }
-    \rebuttal@restorepar
     % Do not allow to place answers within a comment by undefining the answer
     % environment
     \let\answer\@undefined
@@ -345,7 +327,6 @@
     \par\medskip
     \@afterheading
     \rebuttal@incbookmarklevel
-    \rebuttal@restorepar
     \begin{trivlist}
       \ifx\belowpdfbookmark\@undefined\else
         \belowpdfbookmark{Anwser to~\therebuttalcomment}{rebuttalanswer.\therebuttalanswer}%
@@ -375,7 +356,7 @@
     \rebuttal@decbookmarklevel
   }
 }{%
-  \end{list}%
+  \end{trivlist}%
   \rebuttal@decbookmarklevel
   \endgroup
   \par\addvspace{\bigskipamount}%
