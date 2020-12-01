@@ -300,11 +300,17 @@
   \let\endcomment\@undefined
   \newenvironment{comment}{%
     \rebuttal@incbookmarklevel
-    \preto\item{%
+    \apptocmd\@item{%
       \ifx\currentpdfbookmark\@undefined\else
         \currentpdfbookmark{Comment~\therebuttalcomment}{rebuttalcomment.\therebuttalcomment}%
       \fi
-    }
+    }{%
+      \PackageInfo{rebuttal}{The \string\@item\space command was patched to
+        provide comment bookmarks.}%
+    }{%
+      \PackageWarning{rebuttal}{Failed to patch the \string\@item\space command.
+        Bookmarks may not be displayed correctly.}%
+    }%
     % Do not allow to place answers within a comment by undefining the answer
     % environment
     \let\answer\@undefined
