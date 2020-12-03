@@ -21,6 +21,7 @@
 \PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
 
 \RequirePackage{calc}
+\RequirePackage{environ}
 \RequirePackage{etoolbox}
 \RequirePackage{marginnote}
 \RequirePackage{pgfkeys}
@@ -206,6 +207,19 @@
     \fi
   }%
 }
+
+% Provide an equivalent environment for rebuttal commands
+\NewEnviron{additionenv}[1][]{%
+  \addition[#1]{\BODY}%
+}%
+
+\NewEnviron{changeenv}[2][]{%
+  \change[#1]{#2}{\BODY}%
+}%
+
+\NewEnviron{deletionenv}[1][]{%
+  \deletion[#1]{\BODY}%
+}%
 
 \newcommand\rebuttal@added[1]{%
   \rebuttal@addition@font%

@@ -39,3 +39,23 @@ referencing the modifications using the `label` option. Additionally, the `ref`
 option back references the original reviewer comment. While `\addition` and
 `\deletion` require a single argument. `\change` expects two arguments, where
 the first one denotes the changed text, and the second one the new text.
+
+Additionally to the provided markup commands, the packages also defines
+equivalent environments for annotation of multiple paragraphs:
+
+```latex
+\begin{additionenv}[label=a:par,ref=c:missing-motivations]
+  \section{New Experiment}
+  % new text
+\end{additionenv}
+
+\begin{changeenv}[label=ch:par,ref=c:missing-motivations]{old text}
+  \section{Improved Experiment}
+  % new text
+\end{changeenv}
+
+\begin{deletionenv}[label=d:par,ref=c:missing-motivations]
+  \section{Useless Discussion}
+  % old text
+\end{deletionenv}
+```
