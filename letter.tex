@@ -134,6 +134,14 @@ Additionally \addition[label=a:foo7,ref=c:c2]{here}.
   \lipsum[2]
 \end{additionenv}
 
+Additional notes:
+\begin{itemize}
+  \item Multiple source references can be
+    \addition[label=a:foo8,ref={c:specific,c:c2}]{specified}.
+  \item If the references do not fit into a single line in the margin, you may
+    force a \addition[label=a:break,ref={c:specific,c:c2},break]{break}.
+\end{itemize}
+
 \end{document}
 
 % vim: ft=tex spell spelllang=en_us

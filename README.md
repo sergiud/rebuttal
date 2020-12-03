@@ -59,3 +59,9 @@ equivalent environments for annotation of multiple paragraphs:
   % old text
 \end{deletionenv}
 ```
+
+The `ref` option provided by markup commands may specify multiple labels:
+
+```latex
+\addition[label=a:new,ref={c:c1,c:c2}]{new text}.
+```

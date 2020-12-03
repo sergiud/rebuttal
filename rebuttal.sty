@@ -68,6 +68,7 @@
 
 \newif\ifrebuttal@marked
 \newif\ifrebuttal@nohyperlinks
+\newif\ifrebuttal@refbreak
 
 \pgfkeys{
   /rebuttal/.is family,
@@ -108,23 +109,25 @@
 
 \let\rebuttalanswerlabel\rebuttal@answerlabel
 
-\newcommand\rebuttal@reference[1]{%
+\newrobustcmd\rebuttal@reference[1]{%
   \begingroup
-    \rebuttal@referencefont
+  \rebuttal@referencefont
+  \begin{tabular}{@{}c@{}}
     \begingroup
       \color{rebuttal@#1}%
       \MakeUppercase{\rebuttal@id}%
       \csname therebuttal#1\endcsname
     \endgroup
+    \ifrebuttal@refbreak
+      \\%
+    \else
+      \enspace
+    \fi
     \normalfont
     % Reset color (TODO Maybe allow to modify the color)
     \color{black}%
-    ~%
-    \ifrebuttal@nohyperlinks
-      (\ref*{\pgfkeysvalueof{/rebuttal/#1/ref}})%
-    \else
-      (\ref{\pgfkeysvalueof{/rebuttal/#1/ref}})%
-    \fi
+    (\pgfkeys{/rebuttal/#1/ref/all})%
+  \end{tabular}%
   \endgroup
 }
 
@@ -132,8 +135,31 @@
   \pgfkeys{
     /rebuttal/#1/label/.initial=,
     /rebuttal/#1/label/.value required,
+    /rebuttal/#1/break/.is if=rebuttal@refbreak,
     /rebuttal/#1/ref/.initial=,
     /rebuttal/#1/ref/.value required,
+    /rebuttal/#1/ref/create/.code={
+      \ifrebuttal@nohyperlinks
+        \ref*{##1}%
+      \else
+        \ref{##1}%
+      \fi
+    },
+    /rebuttal/#1/ref/all/.code={%
+      \pgfkeysgetvalue{/rebuttal/#1/ref}\rebuttal@currefs
+      \edef\rebuttal@tmp{\rebuttal@currefs}%
+      \foreach
+      [
+        %expand list,
+        count=\ri from 0,
+      ]
+      \r in \rebuttal@tmp {%
+        \ifnum\ri > 0\relax
+          ,\,%
+        \fi
+        \pgfkeys{/rebuttal/#1/ref/create=\r}%
+      }%
+    },
     /rebuttal/#1/color/.code={\colorlet{rebuttal@#1}{##1}},
     /rebuttal/#1/color=#2,
     /rebuttal/#1/font/.value required,
