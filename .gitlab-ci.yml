@@ -2,6 +2,8 @@ default:
   image: sergiud/texlive:2020
 
 build:
+  tags:
+    - docker
   script:
     - latexmk -pdf letter
   artifacts:
