@@ -65,3 +65,8 @@ The `ref` option provided by markup commands may specify multiple labels:
 ```latex
 \addition[label=a:new,ref={c:c1,c:c2}]{new text}.
 ```
+
+## Limitations
+
+* Rebuttal markup cannot be used within floating environments such as `figure`
+  and `table`, and the `\caption` command.
