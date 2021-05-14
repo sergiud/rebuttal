@@ -14,6 +14,12 @@ To use the package, simply load `rebuttal` in the document preamble as follows:
 \usepackage{rebuttal}
 ```
 
+Also make sure the `xcolor` package has been loaded using the following options:
+
+* `dvipsnames`
+* `svgnames`
+* `x11names`
+
 Afterwards, you can structure the rebuttal using (multiple) `rebuttal` environment(s).
 
 The `rebuttal` environment can contain several blocks that refer to editor's or
