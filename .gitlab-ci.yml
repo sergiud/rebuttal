@@ -1,11 +1,17 @@
-default:
-  image: sergiud/texlive:2020
-
-build:
+.compile_template: &compile_definition
   tags:
     - docker
   script:
     - latexmk -pdf letter
+  stage: build
   artifacts:
     paths:
       - "*.pdf"
+
+compile:texlive2020:
+  image: sergiud/texlive:2020
+  <<: *compile_definition
+
+compile:texlive2021:
+  image: sergiud/texlive:2021
+  <<: *compile_definition
