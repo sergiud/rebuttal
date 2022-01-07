@@ -1,0 +1,6 @@
+build:
+  script:
+    - latexmk -pdf letter
+  artifacts:
+    paths:
+      - "*.pdf"
