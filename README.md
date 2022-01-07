@@ -1,10 +1,15 @@
-# The Rebuttal Package
+# Structured Rebuttals in LaTeX
 
-This LaTeX package provides means for writing journal and conference paper
-rebuttals in a structured manner. The packages allows to create a master list of
-referee comments and the corresponding replies, and to additionally
-cross-reference the changes (i.e., additions, deletions, and changes) within the
-original manuscript and the actual rebuttal letter.
+[![TeXLive](https://github.com/sergiud/rebuttal/actions/workflows/texlive.yml/badge.svg)](https://github.com/sergiud/rebuttal/actions/workflows/texlive.yml)
+
+The rebuttal LaTeX package provides means for writing structured journal and
+conference paper rebuttals.
+
+## Features
+
+* Creation of a master list of referee comments and the corresponding replies
+* Support for cross-referencings the changes (i.e., additions, deletions, and
+  changes) within the original manuscript and the rebuttal letter
 
 ## Getting Started
 

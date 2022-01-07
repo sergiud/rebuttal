@@ -1,0 +1,25 @@
+name: TeXLive
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: TeXLive ${{matrix.texlive}}
+    runs-on: ubuntu-latest
+    container: texlive/texlive:${{matrix.texlive}}
+    strategy:
+      fail-fast: true
+      matrix:
+        texlive: [TL2019-historic, TL2020-historic, latest]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build examples
+        run: |
+          latexmk -pdf examples/letter
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: examples-texlive-${{matrix.texlive}}
+          path: '*.pdf'

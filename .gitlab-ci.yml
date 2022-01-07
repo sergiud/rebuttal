@@ -2,7 +2,7 @@
   tags:
     - docker
   script:
-    - latexmk -pdf letter
+    - latexmk -pdf examples/letter
   stage: build
   artifacts:
     paths:
