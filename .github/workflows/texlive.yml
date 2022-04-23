@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        texlive: [TL2019-historic, TL2020-historic, latest]
+        texlive: [TL2020-historic, latest]
 
     steps:
       - uses: actions/checkout@v2
