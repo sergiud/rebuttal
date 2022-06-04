@@ -27,6 +27,19 @@ Also make sure the `xcolor` package has been loaded using the following options:
 
 Afterwards, you can structure the rebuttal using (multiple) `rebuttal` environment(s).
 
+## Usage
+
+A well-structured rebuttal typically consists of the following parts:
+
+1. a master list of referee comments and author's replies, and
+2. clearly highlighted changes to the manuscript that stem from reviewers'
+   comments.
+
+The following sections provide an overview of the package's functionality that
+supports authors in producing the above content in a consistent manner.
+
+### Structuring the Rebuttal
+
 The `rebuttal` environment can contain several blocks that refer to editor's or
 specific reviewers' comments and your replies to referees' comments.
 Specifically, the `rebuttal` environment is expected to contain a `comment` and
@@ -43,6 +56,8 @@ an `answer` environment. The general layout looks as follows:
 \end{rebuttal}
 ```
 
+### Annotating Changes to the Manuscript
+
 Within the manuscript, three main commands can be used to denote additions,
 deletions, or changes. The corresponding commands are `\addition`, `\deletion`,
 and `\change`. All three commands require specifying their labels for
@@ -51,8 +66,10 @@ option back references the original reviewer comment. While `\addition` and
 `\deletion` require a single argument. `\change` expects two arguments, where
 the first one denotes the changed text, and the second one the new text.
 
+### Annotating Multiple Paragraphs
+
 Additionally to the provided markup commands, the package also defines
-equivalent environments for annotation of multiple paragraphs:
+equivalent environments for annotating multiple paragraphs:
 
 ```latex
 \begin{additionenv}[label=a:par,ref=c:missing-motivations]
@@ -70,6 +87,8 @@ equivalent environments for annotation of multiple paragraphs:
   % old text
 \end{deletionenv}
 ```
+
+### Referencing Multiple Changes
 
 The `ref` option provided by markup commands may specify multiple labels:
 
