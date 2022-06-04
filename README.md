@@ -8,7 +8,7 @@ conference paper rebuttals.
 ## Features
 
 * Creation of a master list of referee comments and the corresponding replies
-* Support for cross-referencings the changes (i.e., additions, deletions, and
+* Support for cross-referencing the changes (i.e., additions, deletions, and
   changes) within the original manuscript and the rebuttal letter
 
 ## Getting Started
@@ -51,7 +51,7 @@ option back references the original reviewer comment. While `\addition` and
 `\deletion` require a single argument. `\change` expects two arguments, where
 the first one denotes the changed text, and the second one the new text.
 
-Additionally to the provided markup commands, the packages also defines
+Additionally to the provided markup commands, the package also defines
 equivalent environments for annotation of multiple paragraphs:
 
 ```latex
