@@ -25,7 +25,12 @@ Also make sure the `xcolor` package has been loaded using the following options:
 * `svgnames`
 * `x11names`
 
-Afterwards, you can structure the rebuttal using (multiple) `rebuttal` environment(s).
+Please refer to the
+[letter](https://github.com/sergiud/rebuttal/blob/2e8839440c55e23de8dd05a7c0a0cef6f15ce23e/examples/letter.tex#L1)
+example for necessary preamble setup.
+
+Afterwards, you can structure the rebuttal using (multiple) `rebuttal`
+environment(s).
 
 ## Usage
 
@@ -42,8 +47,8 @@ supports authors in producing the above content in a consistent manner.
 
 The `rebuttal` environment can contain several blocks that refer to editor's or
 specific reviewers' comments and your replies to referees' comments.
-Specifically, the `rebuttal` environment is expected to contain a `comment` and
-an `answer` environment. The general layout looks as follows:
+Specifically, the environment is expected to contain a `comment` and an `answer`
+environment. The general layout looks as follows:
 
 ```latex
 \begin{rebuttal}[Editor's Comments]
@@ -60,11 +65,13 @@ an `answer` environment. The general layout looks as follows:
 
 Within the manuscript, three main commands can be used to denote additions,
 deletions, or changes. The corresponding commands are `\addition`, `\deletion`,
-and `\change`. All three commands require specifying their labels for
-referencing the modifications using the `label` option. Additionally, the `ref`
-option back references the original reviewer comment. While `\addition` and
-`\deletion` require a single argument. `\change` expects two arguments, where
-the first one denotes the changed text, and the second one the new text.
+and `\change`.
+
+All three commands require specifying their labels for referencing the
+modifications using the `label` option. Additionally, the `ref` option back
+references the original reviewer comment. While `\addition` and `\deletion`
+require a single argument. `\change` expects two arguments, where the first one
+denotes the changed text, and the second one the new text.
 
 ### Annotating Multiple Paragraphs
 
