@@ -8,10 +8,6 @@
     paths:
       - "*.pdf"
 
-compile:texlive2020:
-  image: sergiud/texlive:2020
-  <<: *compile_definition
-
-compile:texlive2021:
-  image: sergiud/texlive:2021
+compile:texlive2023:
+  image: sergiud/texlive:2023
   <<: *compile_definition
