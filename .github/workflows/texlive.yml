@@ -11,8 +11,8 @@ jobs:
       fail-fast: true
       matrix:
         texlive:
-          - TL2021-historic
           - TL2022-historic
+          - TL2023-historic
           - latest
 
     steps:
