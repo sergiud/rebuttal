@@ -19,12 +19,6 @@ To use the package, simply load `rebuttal` in the document preamble as follows:
 \usepackage{rebuttal}
 ```
 
-Also make sure the `xcolor` package has been loaded using the following options:
-
-* `dvipsnames`
-* `svgnames`
-* `x11names`
-
 Please refer to the
 [letter](https://github.com/sergiud/rebuttal/blob/2e8839440c55e23de8dd05a7c0a0cef6f15ce23e/examples/letter.tex#L1)
 example for necessary preamble setup.
