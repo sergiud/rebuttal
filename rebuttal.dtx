@@ -1,5 +1,6 @@
-%% rebuttal.sty
-%% Copyright 2018-2021, 2024 Sergiu Deitsch
+% \iffalse meta-comment
+%
+% Copyright 2018-2021, 2024 Sergiu Deitsch
 %
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3
@@ -9,14 +10,184 @@
 % and version 1.3 or later is part of all distributions of LaTeX
 % version 2005/12/01 or later.
 %
-% This work has the LPPL maintenance status `maintained'.
+% \fi
 %
-% The Current Maintainer of this work is Sergiu Deitsch.
+% \iffalse
+%<package>\NeedsTeXFormat{LaTeX2e}
+%<package>\ProvidesPackage{rebuttal}
+%<package>   [2024-11-01 v0.1.0 Markup for rebuttal letters]
 %
-% This work consists of the files rebuttal.sty and letter.tex.
+%<*driver>
+\ProvidesFile{rebuttal.dtx}
 
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{rebuttal}[2021/03/08 v0.1.0 Markup for rebuttal letters]
+\documentclass[american,reportchangedates]{ltxdoc}
+\usepackage[abbreviations]{foreign}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{babel}
+\usepackage{microtype}
+\usepackage[all]{nowidow}
+\usepackage{rebuttal}
+\usepackage{hyperref}
+
+\EnableCrossrefs
+\OnlyDescription
+\CodelineIndex
+\RecordChanges
+
+\hypersetup{%
+  pdfauthor = {Sergiu Deitsch},
+  pdftitle  = {The rebuttal package},
+}
+
+\begin{document}
+  \DocInput{rebuttal.dtx}
+\end{document}
+%</driver>
+% \fi
+%
+% \CheckSum{0}
+%
+% \CharacterTable
+%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%   Digits        \0\1\2\3\4\5\6\7\8\9
+%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%   Dollar        \$     Percent       \%     Ampersand     \&
+%   Acute accent  \'     Left paren    \(     Right paren   \)
+%   Asterisk      \*     Plus          \+     Comma         \,
+%   Minus         \-     Point         \.     Solidus       \/
+%   Colon         \:     Semicolon     \;     Less than     \<
+%   Equals        \=     Greater than  \>     Question mark \?
+%   Commercial at \@     Left bracket  \[     Backslash     \\
+%   Right bracket \]     Circumflex    \^     Underscore    \_
+%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%   Right brace   \}     Tilde         \~}
+%
+%
+% \changes{v0.1.0}{2024-11-01}{Initial release}
+%
+% \GetFileInfo{rebuttal.sty}
+%
+% \DoNotIndex{\newcommand,\newenvironment,\def,\the,\let,\if,\fi,\else}
+% \DoNotIndex{\newif,\ifx,\ifcase,\or}
+% \DoNotIndex{\begingroup,\endgroup}
+%
+% \title{The \textsf{rebuttal} package\thanks{This document
+%   corresponds to \textsf{rebuttal}~\fileversion, dated \filedate.}}
+% \author{Sergiu Deitsch\\\texttt{sergiu.deitsch@gmail.com}}
+% \date{November 1, 2024}
+%
+% \maketitle
+%
+% \begin{abstract}
+% The rebuttal LaTeX package provides means for writing structured journal and
+% conference paper rebuttals.
+% \end{abstract}
+%
+% \section{Introduction}
+%
+% A well-structured rebuttal typically consists of the following parts:
+%
+% \begin{enumerate}
+%   \item a master list of referee comments and author's replies, and
+%   \item clearly highlighted changes to the manuscript that stem from
+%   reviewers' comments.
+% \end{enumerate}
+%
+% The \textsf{rebuttal} provides markup to support authors in producing the
+% above content in a consistent manner.
+%
+% \section{Usage}
+%
+% The following sections provide an overview of the package's functionality for
+% structuring rebuttals and annotating manuscripts.
+%
+% \subsection{Structuring the Rebuttal}
+%
+% \DescribeEnv{rebuttal}
+% \DescribeEnv{comment}
+% \DescribeEnv{answer}
+% The packages defines the |rebuttal| environment that can contain several
+% blocks that refer to editor's or specific reviewers' comments and your replies
+% to referees' comments. Specifically, the environment is expected to contain a
+% |comment| and an |answer| environment. The general layout looks as follows:
+%
+% \begin{verbatim}
+%   \begin{rebuttal}[Editor's Comments]
+%     \begin{comment}
+%       % Reviewer's comment
+%     \end{comment}
+%     \begin{answer}
+%       % The reply
+%     \end{answer}
+%   \end{rebuttal}
+% \end{verbatim}
+%
+% \subsection{Annotating Changes to the Manuscript}
+%
+% \DescribeMacro{\addition}
+% \DescribeMacro{\deletion}
+% \DescribeMacro{\change}
+% Within the manuscript, three main commands can be used to denote additions,
+% deletions, or changes. The corresponding commands are
+% |\addition|\oarg{options}\marg{text}, |\deletion|\oarg{options}\marg{text},
+% and |\change|\oarg{options}\marg{old text}\marg{new text}.
+%
+% All three commands require specifying their labels for referencing the
+% modifications using the \meta{label} option. Additionally, the \meta{ref}
+% option back references the original reviewer comment and may specify multiple
+% labels, \eg
+%
+% \begin{verbatim}
+%   \addition[label=a:new,ref={c:c1,c:c2}]{new text}.
+% \end{verbatim}
+%
+% While |\addition| and
+% |\deletion| require a single argument. |\change| expects two arguments, where
+% the first one denotes the changed text, and the second one the new text.
+%
+%
+% \subsection{Annotating Multiple Paragraphs}
+%
+% \DescribeEnv{additionenv}
+% \DescribeEnv{changeenv}
+% \DescribeEnv{deletionenv}
+% Additionally to the provided markup commands, the package also defines
+% equivalent environments for annotating multiple paragraphs:
+%
+% \begin{verbatim}
+%   \begin{additionenv}[label=a:par,ref=c:missing-motivations]
+%     \section{New Experiment}
+%     % new text
+%   \end{additionenv}
+%
+%   \begin{changeenv}[label=ch:par,ref=c:missing-motivations]{old text}
+%     \section{Improved Experiment}
+%     % new text
+%   \end{changeenv}
+%
+%   \begin{deletionenv}[label=d:par,ref=c:missing-motivations]
+%     \section{Useless Discussion}
+%     % old text
+%   \end{deletionenv}
+% \end{verbatim}
+%
+% \section{Known Limitations}
+%
+% Rebuttal markup cannot be used within floating environments such as |figure|
+% and |table|, and the |\caption| command.
+%
+% \MaybeStop{\PrintChanges}
+%
+% \section{Implementation}
+%
+% \subsection{Package}
+%
+%    \begin{macrocode}
+%<*package>
+%    \end{macrocode}
+%    \begin{macrocode}
 
 \PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
 
@@ -466,5 +637,154 @@
 \newcommand\rebuttalset[1]{%
   \pgfqkeys{/rebuttal}{#1}%
 }
+%</package>
+%<*example1>
+\documentclass[american,version=last,fromphone,fromemail,svgnames,dvipsnames,x11names]{scrlttr2}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[babel]{csquotes}
+\usepackage{babel}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage{lipsum}
+\usepackage{rebuttal}
+\usepackage{varioref}
+\usepackage{hyperref}
+\usepackage{cleveref}
 
+\hypersetup{colorlinks=true}
+
+\setkomavar{fromname}{Jane Smith}
+\setkomavar{fromaddress}{%
+  Pattern Recognition Lab\\
+  University of Erlangen-Nürnberg
+}
+\setkomavar{backaddress}{}
+\setkomavar{fromphone}{$+49$\,(0)\,12345678}
+\setkomavar{fromemail}{firstname.lastname@fau.de}
+\setkomavar{place}{Erlangen}
+
+\begin{document}
+
+\setkomavar{subject}{Manuscript: Extended Field of View in C-Arm Computed
+  Tomography for Weight-Bearing Imaging}
+
+\begin{letter}{Medical Physics}
+
+\opening{Dear Prof. Jones, Dear Prof. Taylor,}
+
+We thank you for considering our submission as a research article for Medical
+Physics. We also thank the reviewers for the thoughtful comments. We have
+carefully revised the document and prepared a point-by-point response to the
+reviewer’s comments.
+
+The major changes to the paper are:
+\begin{itemize}
+  \item Clarification of the medical impact
+  \item An extension of the evaluation and discussion to 3D Cone Beam CT and
+    off-center positioning of the object
+  \item Inclusion of more substantive figure captions
+\end{itemize}
+
+Below, you will find the reviewers’ comments in blue, our response in normal
+face and additions to the manuscript in quotes and \enquote{italic face.} Note
+that we omitted footnotes and references in the quotations.
+
+We are looking forward to hearing from you.
+
+\closing{With kind regards,}
+
+\end{letter}
+
+\clearpage\noindent The following pages contain a list of editor's and
+reviewers' comments followed by our replies. The comments are sequentially
+numbered and associated either with the editor or the corresponding reviewer.
+The replies may contain references to changes in the original manuscript which
+are identified by a label consisting of a running number and followed by the
+label of the original comment in parentheses. The label back references the
+original reviewer comment within the manuscript. For instance, the reference
+\textbf{C2~(1.3)}, which is typeset in the manuscript margin, refers to the
+second change stemming from the third comment of the first reviewer.
+
+\begin{rebuttal}[Editor's Comments]
+  \begin{comment}
+  The topic of this manuscript is of interest. We concur with the summary review
+  of the associate editor and the reviews of the referees. The authors should
+  thoroughly address all of the comments, below, in a revised manuscript.
+  \end{comment}
+
+\end{rebuttal}
+
+\begin{rebuttal}[Specific Comments]
+  \begin{comment}
+  \label{c:specific}
+  You need to include figure captions that make your figures intelligible.
+  See~\cref{a:foo} and \cref{c:foo2}.
+  \end{comment}
+
+  \begin{answer}
+    The reviewer is right. We have reworked the figure captions to make the
+    figures more independent of the text. Furthermore, check if lists are
+    typeset correctly:
+    \begin{itemize}
+      \item One
+      \item Two
+        \begin{enumerate}
+          \item Three
+          \item Four
+        \end{enumerate}
+    \end{itemize}
+  \end{answer}
+
+  \begin{comment}
+    \label{c:c2}
+    Are you going to pay for color in the print article? If not, the lines are
+    not intelligible in Figures 2, 5, 11. In addition to color coding for the
+    digital version, you could make lines with distinct patterns (dots, dashes,
+    etc.) so they are distinct in monochrome presentations.
+  \end{comment}
+
+  \begin{answer}
+    We agree with this point and we are sorry that we missed this in the first
+    version of the article. The article will appear as an online only version
+    and is part of the special issue associated with this year’s CT Meeting
+    conference. Thus there will be no additional cost associated with color
+    figures. Nonetheless, we agree that all figures need to be correct in
+    grey-scale as some readers might print the article. According to the
+    reviewer’s comment, we have adjusted the figures by using different patterns
+    and gray levels.
+
+    (Refer also to \cref{c:specific} for more information.)
+  \end{answer}
+\end{rebuttal}
+
+\lipsum[1] \addition[label=a:foo,ref=c:specific]{\lipsum[2]} \lipsum[3]
+
+\lipsum[4] \deletion[label=a:foo1,ref=c:c2]{An unintended addition.}
+and a \change[label=c:foo2,ref=c:c2]{from}{to} change. And another addition
+\addition[label=a:foo3,ref=c:c2]{here}.
+Also \addition[label=a:foo4,ref=c:c2]{here}.
+Maybe \addition[label=a:foo5,ref=c:c2]{here}.
+Additionally \addition[label=a:foo6,ref=c:c2]{here}.
+Additionally \addition[label=a:foo7,ref=c:c2]{here}.
+
+\begin{additionenv}[label=d:par,ref=c:c2]
+  \begin{itemize}
+    \item \lipsum[1]
+  \end{itemize}
+  \lipsum[2]
+\end{additionenv}
+
+Additional notes:
+\begin{itemize}
+  \item Multiple source references can be
+    \addition[label=a:foo8,ref={c:specific,c:c2}]{specified}.
+  \item If the references do not fit into a single line in the margin, you may
+    force a \addition[label=a:break,ref={c:specific,c:c2},break]{break}.
+\end{itemize}
+
+\end{document}
+%</example1>
+%    \end{macrocode}
+%
 % vim: ft=tex

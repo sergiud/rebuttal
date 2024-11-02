@@ -1,13 +1,12 @@
 module = 'rebuttal'
 
 sourcefiledir = '.'
-sourcefiles = {'rebuttal.sty'}
 
-demofiles = {'examples/*.tex'}
+demofiles = {'??-example.tex'}
 
 uploadconfig = {
     pkg = 'rebuttal',
-    summary = 'Structured rebuttals in LaTeX',
+    summary = 'Markup for rebuttal letters',
     description = 'The package provides means for writing structured journal and conference paper rebuttals',
     author = 'Sergiu Deitsch',
     email = 'sergiu.deitsch@gmail.com',

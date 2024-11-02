@@ -18,16 +18,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Generate package
+        run: |
+          pdflatex rebuttal.ins
+
+      - name: Build documentation
+        run: |
+          latexmk -pdf rebuttal.dtx
+
       - name: Build examples
         run: |
-          latexmk -pdf examples/letter
+          latexmk -pdf ??-example.tex
 
       - name: Build CTAN package
         run: |
           l3build ctan
 
-      - name: Upload examples
+      - name: Upload package
         uses: actions/upload-artifact@v4
         with:
-          name: examples-texlive-${{matrix.texlive}}
-          path: '*.pdf'
+          name: rebuttal-texlive-${{matrix.texlive}}
+          path: |
+            rebuttal.dtx
+            rebuttal.sty
+            rebuttal.pdf
+            ??-example.pdf

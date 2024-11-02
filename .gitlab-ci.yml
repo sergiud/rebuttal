@@ -2,7 +2,9 @@
   tags:
     - docker
   script:
-    - latexmk -pdf examples/letter
+    - l3build doc
+    - pdflatex rebuttal.ins
+    - latexmk -pdf 01-example
   stage: build
   artifacts:
     paths:
