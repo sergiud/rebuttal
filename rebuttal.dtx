@@ -15,12 +15,12 @@
 % \iffalse
 %<package>\NeedsTeXFormat{LaTeX2e}
 %<package>\ProvidesPackage{rebuttal}
-%<package>   [2024-11-14 v0.1.1 Markup for rebuttal letters]
+%<package>   [2025-01-21 v0.2.0 Markup for rebuttal letters]
 %
 %<*driver>
 \ProvidesFile{rebuttal.dtx}
 
-\documentclass[american,reportchangedates]{ltxdoc}
+\documentclass[american,reportchangedates,svgnames]{ltxdoc}
 \usepackage[abbreviations]{foreign}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -201,10 +201,6 @@
 %    \begin{macrocode}
 %<*package>
 %    \end{macrocode}
-% We need to load additional color sets.
-%    \begin{macrocode}
-\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
-%    \end{macrocode}
 % Package dependencies.
 %    \begin{macrocode}
 \RequirePackage{calc}
@@ -218,6 +214,14 @@
 \RequirePackage{ulem}
 \RequirePackage{xcolor}
 \RequirePackage{xstring}
+%    \end{macrocode}
+
+% \changes{v0.2.0}{2025-01-21}{Do not require loading \textsf{xcolor} with
+% specific options}
+%    \begin{macrocode}
+\providecolor{DodgerBlue3}{rgb}{.094,.455,.804}
+\providecolor{Firebrick3}{rgb}{.804,.15,.15}
+\providecolor{RedViolet}{RGB}{157,0,97}
 
 \AtEndPreamble{
   \RequirePackage{pdfcomment}
@@ -745,7 +749,13 @@
 %
 %    \begin{macrocode}
 %<*example1>
-\documentclass[american,version=last,fromphone,fromemail,svgnames,dvipsnames,x11names]{scrlttr2}
+\documentclass[american,version=last,fromphone,fromemail]{scrlttr2}
+%    \end{macrocode}
+% Loading \textsf{xcolor} explicitly is not necessary. This line is solely used
+% to ensure that the \textsf{rebuttal} package does not rely on specific
+% \textsf{xcolor} options.
+%    \begin{macrocode}
+\usepackage[]{xcolor}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage[babel]{csquotes}
