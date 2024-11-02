@@ -18,18 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Generate package
-        run: |
-          pdflatex rebuttal.ins
-
-      - name: Build documentation
-        run: |
-          latexmk -pdf rebuttal.dtx
-
-      - name: Build examples
-        run: |
-          latexmk -pdf ??-example.tex
-
       - name: Build CTAN package
         run: |
           l3build ctan
@@ -39,7 +27,4 @@ jobs:
         with:
           name: rebuttal-texlive-${{matrix.texlive}}
           path: |
-            rebuttal.dtx
-            rebuttal.sty
-            rebuttal.pdf
-            ??-example.pdf
+            build/distrib/ctan/rebuttal/
