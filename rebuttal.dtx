@@ -15,7 +15,7 @@
 % \iffalse
 %<package>\NeedsTeXFormat{LaTeX2e}
 %<package>\ProvidesPackage{rebuttal}
-%<package>   [2024-11-01 v0.1.0 Markup for rebuttal letters]
+%<package>   [2024-11-01 v0.1.1 Markup for rebuttal letters]
 %
 %<*driver>
 \ProvidesFile{rebuttal.dtx}
@@ -31,7 +31,6 @@
 \usepackage{hyperref}
 
 \EnableCrossrefs
-\OnlyDescription
 \CodelineIndex
 \RecordChanges
 
@@ -46,7 +45,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{0}
+% \CheckSum{612}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -69,14 +68,14 @@
 %
 % \GetFileInfo{rebuttal.sty}
 %
-% \DoNotIndex{\newcommand,\newenvironment,\def,\the,\let,\if,\fi,\else}
+% \DoNotIndex{\newcommand,\newenvironment,\def,\the,\let,\if,\fi,\else,\\}
 % \DoNotIndex{\newif,\ifx,\ifcase,\or}
 % \DoNotIndex{\begingroup,\endgroup}
 %
 % \title{The \textsf{rebuttal} package\thanks{This document
 %   corresponds to \textsf{rebuttal}~\fileversion, dated \filedate.}}
 % \author{Sergiu Deitsch\\\texttt{sergiu.deitsch@gmail.com}}
-% \date{November 1, 2024}
+% \date{November 3, 2024}
 %
 % \maketitle
 %
@@ -178,7 +177,7 @@
 % Rebuttal markup cannot be used within floating environments such as |figure|
 % and |table|, and the |\caption| command.
 %
-% \MaybeStop{\PrintChanges}
+% \MaybeStop{\PrintChanges\PrintIndex}
 %
 % \section{Implementation}
 %
@@ -490,8 +489,13 @@
     \fi
   \fi
 }
+%    \end{macrocode}
 
 % TODO Comment labels tooltips
+% \begin{environment}{rebuttal}
+% The main environment that defines the remaining ones.
+% \changes{v0.1.1}{2024-11-XX}{Fixed incorrect bookmark structure}
+%    \begin{macrocode}
 \newenvironment{rebuttal}[1][]{%
   \rebuttal@startlinkguard
   % Execute user code
@@ -509,8 +513,22 @@
   \par
   \addvspace{\bigskipamount}%
   \ifstrempty{#1}{}{%
-    \ifx\subpdfbookmark\@undefined\else
-      \subpdfbookmark{#1}{rebuttalcomment.\therebuttalcomment}%
+%    \end{macrocode}
+% In case the current bookmark level is 0, we leave it as is. Otherwise, we
+% increment the level to anchor the following bookmarks below the current
+% bookmark. This ensures that the bookmark structure is correct even if the
+% document either does not use or provides structuring commands (\eg,
+% missing |\section| in a |scrlttr2| document).
+%    \begin{macrocode}
+    \ifx\Hy@currentbookmarklevel\@undefined\else
+      \ifnum\Hy@currentbookmarklevel>0
+        \@tempcnta\Hy@currentbookmarklevel
+        \advance\@tempcnta by 1 %
+        \xdef\Hy@currentbookmarklevel{\the\@tempcnta}%
+      \fi
+    \fi
+    \ifx\currentpdfbookmark\@undefined\else
+      \currentpdfbookmark{#1}{rebuttalcomment.\therebuttalcomment}%
     \fi
     \noindent\bgroup\rebuttal@titlefont\strut
     \pgfkeys{/rebuttal/title/format=#1}\egroup%
@@ -606,7 +624,10 @@
   \pgfkeysvalueof{/rebuttal/execute on end}%
   \rebuttal@endlinkguard
 }
+%    \end{macrocode}
+% \end{environment}
 
+%    \begin{macrocode}
 % Support cleveref
 \AtEndPreamble{%
   \@ifpackageloaded{cleveref}{%
@@ -638,6 +659,11 @@
   \pgfqkeys{/rebuttal}{#1}%
 }
 %</package>
+%    \end{macrocode}
+%
+% \subsection{Example}
+%
+%    \begin{macrocode}
 %<*example1>
 \documentclass[american,version=last,fromphone,fromemail,svgnames,dvipsnames,x11names]{scrlttr2}
 \usepackage[T1]{fontenc}
@@ -786,5 +812,8 @@ Additional notes:
 \end{document}
 %</example1>
 %    \end{macrocode}
-%
+% \Finale
+
+% \endinput
+
 % vim: ft=tex
