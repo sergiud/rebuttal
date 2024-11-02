@@ -7,7 +7,23 @@
   artifacts:
     paths:
       - "*.pdf"
+  needs: []
+
+.package_template: &package_definition
+  tags:
+    - docker
+  script:
+    - l3build ctan
+  stage: deploy
+  artifacts:
+    paths:
+      - "*-ctan.zip"
+  needs: []
 
 compile:texlive2024:
   image: sergiud/texlive:2024
   <<: *compile_definition
+
+package:texlive2024:
+  image: sergiud/texlive:2024
+  <<: *package_definition

@@ -22,7 +22,12 @@ jobs:
         run: |
           latexmk -pdf examples/letter
 
-      - uses: actions/upload-artifact@v4
+      - name: Build CTAN package
+        run: |
+          l3build ctan
+
+      - name: Upload examples
+        uses: actions/upload-artifact@v4
         with:
           name: examples-texlive-${{matrix.texlive}}
           path: '*.pdf'

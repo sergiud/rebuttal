@@ -7,3 +7,11 @@
 *.soc
 *.up[ab]
 /*.pdf
+/build/
+/rebuttal-ctan.curlopt
+/rebuttal-ctan.zip
+/rebuttal.gl[os]
+/rebuttal.hd
+/rebuttal.idx
+/rebuttal.ilg
+/rebuttal.ind
