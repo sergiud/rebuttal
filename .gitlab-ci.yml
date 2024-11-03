@@ -9,6 +9,14 @@
       - build/distrib/ctan/rebuttal/
   needs: []
 
+compile:texlive2022:
+  image: sergiud/texlive:2022
+  <<: *compile_definition
+
+compile:texlive2023:
+  image: sergiud/texlive:2023
+  <<: *compile_definition
+
 compile:texlive2024:
   image: sergiud/texlive:2024
   <<: *compile_definition
