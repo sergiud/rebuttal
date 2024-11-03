@@ -15,7 +15,7 @@
 % \iffalse
 %<package>\NeedsTeXFormat{LaTeX2e}
 %<package>\ProvidesPackage{rebuttal}
-%<package>   [2024-11-01 v0.1.1 Markup for rebuttal letters]
+%<package>   [2024-11-03 v0.1.1 Markup for rebuttal letters]
 %
 %<*driver>
 \ProvidesFile{rebuttal.dtx}
@@ -37,6 +37,8 @@
 \hypersetup{%
   pdfauthor = {Sergiu Deitsch},
   pdftitle  = {The rebuttal package},
+  urlcolor  = NavyBlue,
+  linkcolor = Firebrick3,
 }
 
 \begin{document}
@@ -45,7 +47,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{612}
+% \CheckSum{0}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -65,6 +67,7 @@
 %
 %
 % \changes{v0.1.0}{2024-11-01}{Initial release}
+% \changes{v0.1.1}{2024-11-03}{Improved documentation}
 %
 % \GetFileInfo{rebuttal.sty}
 %
@@ -72,15 +75,17 @@
 % \DoNotIndex{\newif,\ifx,\ifcase,\or}
 % \DoNotIndex{\begingroup,\endgroup}
 %
-% \title{The \textsf{rebuttal} package\thanks{This document
-%   corresponds to \textsf{rebuttal}~\fileversion, dated \filedate.}}
-% \author{Sergiu Deitsch\\\texttt{sergiu.deitsch@gmail.com}}
+% \title{The \href{https://github.com/sergiud/rebuttal}{\textsf{rebuttal}} package%
+%   \thanks{This document corresponds to \textsf{rebuttal}~\fileversion, dated \filedate.}}
+% \author{Sergiu % Deitsch\\%
+%   \href{mailto:sergiu.deitsch@gmail.com}{\texttt{sergiu.deitsch@gmail.com}}%
+% }
 % \date{November 3, 2024}
 %
 % \maketitle
 %
 % \begin{abstract}
-% The rebuttal LaTeX package provides means for writing structured journal and
+% The rebuttal \LaTeX\ package provides means for writing structured journal and
 % conference paper rebuttals.
 % \end{abstract}
 %
@@ -109,8 +114,9 @@
 % \DescribeEnv{answer}
 % The packages defines the |rebuttal| environment that can contain several
 % blocks that refer to editor's or specific reviewers' comments and your replies
-% to referees' comments. Specifically, the environment is expected to contain a
-% |comment| and an |answer| environment. The general layout looks as follows:
+% to referees' comments. Specifically, the environment accepts an optional
+% \oarg{title} and is expected to contain a |comment| and an |answer|
+% environment. The general layout looks as follows:
 %
 % \begin{verbatim}
 %   \begin{rebuttal}[Editor's Comments]
@@ -146,7 +152,6 @@
 % |\deletion| require a single argument. |\change| expects two arguments, where
 % the first one denotes the changed text, and the second one the new text.
 %
-%
 % \subsection{Annotating Multiple Paragraphs}
 %
 % \DescribeEnv{additionenv}
@@ -172,6 +177,18 @@
 %   \end{deletionenv}
 % \end{verbatim}
 %
+% \subsection{Disabling Annotations}
+%
+% \DescribeMacro{\rebuttalset}
+% Once a manuscript has been accepted for publication, rebuttal annotations are
+% no longer necessary and only the accepted changes should be typeset.
+% \textsf{rebuttal} allows to disable annotation using the |\rebuttalset|
+% command by disabling the \meta{marked} option, \ie,
+% \begin{verbatim}
+%   \rebuttalset{marked=false}
+% \end{verbatim}
+% which will disable the annotiations in the current group.
+%
 % \section{Known Limitations}
 %
 % Rebuttal markup cannot be used within floating environments such as |figure|
@@ -186,10 +203,12 @@
 %    \begin{macrocode}
 %<*package>
 %    \end{macrocode}
+% We need to load additional color sets.
 %    \begin{macrocode}
-
 \PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
-
+%    \end{macrocode}
+% Package dependencies.
+%    \begin{macrocode}
 \RequirePackage{calc}
 \RequirePackage{environ}
 \RequirePackage{etoolbox}
@@ -209,7 +228,10 @@
 \ifx\counterwithin\@undefined
 \RequirePackage{chngcntr}
 \fi
-
+%    \end{macrocode}
+% \begin{macro}{\rebuttal@triangle}
+% The following command is used to generate a triangle in the left margin.
+%    \begin{macrocode}
 \newcommand\rebuttal@triangle{%
   \begingroup
   \ifx\tikzexternaldisable\@undefined\else
@@ -220,7 +242,12 @@
   \end{tikzpicture}%
   \endgroup
 }
-
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\rebuttal@decbookmarklevel}
+% Unless \textsf{hyperref} was not loaded, the command decrements the current
+% bookmark level.
+%    \begin{macrocode}
 \newcommand\rebuttal@decbookmarklevel{%
   \ifx\Hy@currentbookmarklevel\@undefined\else
     \@tempcnta\Hy@currentbookmarklevel
@@ -228,7 +255,13 @@
     \xdef\Hy@currentbookmarklevel{\the\@tempcnta}%
   \fi
 }
+%    \end{macrocode}
+% \end{macro}
 
+% \begin{macro}{\rebuttal@incbookmarklevel}
+% Unless \textsf{hyperref} was not loaded, the command incements the current
+% bookmark level.
+%    \begin{macrocode}
 \newcommand\rebuttal@incbookmarklevel{%
   \ifx\Hy@currentbookmarklevel\@undefined\else
     \@tempcnta\Hy@currentbookmarklevel
@@ -236,7 +269,10 @@
     \xdef\Hy@currentbookmarklevel{\the\@tempcnta}%
   \fi
 }
+%    \end{macrocode}
+% \end{macro}
 
+%    \begin{macrocode}
 \newif\ifrebuttal@marked
 \newif\ifrebuttal@nohyperlinks
 \newif\ifrebuttal@refbreak
@@ -370,22 +406,30 @@
         \label{\pgfkeysvalueof{/rebuttal/#1/label}}%
         \colorlet{Changes@Color}{rebuttal@#1}%
         \begingroup
-          % Main content
+%    \end{macrocode}
+% Main content.
+%    \begin{macrocode}
           #2%
         \endgroup
         \StrLeft{#1}{1}[\rebuttal@id]%
         \ifx\tikzexternaldisable\@undefined\else
           \tikzexternaldisable
         \fi
-        % Shrink to text
+%    \end{macrocode}
+% Shrink to text.
+%    \begin{macrocode}
         \settowidth\rebuttal@textwidth{\rebuttal@reference{#1}}%
         \tikzset{notestyleraw/.append style={text width=\rebuttal@textwidth}}%
-        % Place labels in left margin at the same distance as on the right
+%    \end{macrocode}
+% Place labels in left margin at the same distance as on the right.
+%    \begin{macrocode}
         \setlength\rebuttal@hskip{\marginparwidth}%
         \addtolength\rebuttal@hskip{-\rebuttal@textwidth}%
         \let\old@xmpar\@xmpar
-        % Hook into LaTeX kernel command since \if@firstcolumn is not unreliable
-        % because margin notes are floats.
+%    \end{macrocode}
+% Hook into \LaTeX\ kernel command since |\if@firstcolumn| is not unreliable
+% because margin notes are floats.
+%    \begin{macrocode}
         \renewcommand\@xmpar[2][]{%
           \old@xmpar[\hspace*{\rebuttal@hskip}####1]{####2}%
         }%
@@ -405,20 +449,36 @@
     \fi
   }%
 }
+%    \end{macrocode}
 
-% Provide an equivalent environment for rebuttal commands
+% \begin{environment}{additionenv}
+% Provide an equivalent environment for the |\addition| command.
+%    \begin{macrocode}
 \NewEnviron{additionenv}[1][]{%
   \addition[#1]{\BODY}%
 }%
+%    \end{macrocode}
+% \end{environment}
 
+% \begin{environment}{changeenv}
+% Provide an equivalent environment for the |\change| command.
+%    \begin{macrocode}
 \NewEnviron{changeenv}[2][]{%
   \change[#1]{#2}{\BODY}%
 }%
+%    \end{macrocode}
+% \end{environment}
 
+% \begin{environment}{deletionenv}
+% Provide an equivalent environment for the |\deletion| command.
+%    \begin{macrocode}
 \NewEnviron{deletionenv}[1][]{%
   \deletion[#1]{\BODY}%
 }%
+%    \end{macrocode}
+% \end{environment}
 
+%    \begin{macrocode}
 \newcommand\rebuttal@added[1]{%
   \ifrebuttal@marked
     \rebuttal@addition@font%
@@ -471,8 +531,11 @@
 \counterwithin*{rebuttalanswer}{rebuttalcomment}%
 
 \newdimen\rebuttal@labelsep
+%    \end{macrocode}
 
-% Disable hyperlinks if NoHyper environment is available
+% \begin{macro}{\rebuttal@startlinkguard}
+% Disable hyperlinks if |NoHyper| environment is available.
+%    \begin{macrocode}
 \newcommand\rebuttal@startlinkguard{%
   \ifx\NoHyper\@undefined\else
     \ifrebuttal@nohyperlinks
@@ -480,8 +543,12 @@
     \fi
   \fi
 }
+%    \end{macrocode}
+% \end{macro}
 
-% End of disable hyperlinks if NoHyper environment is available
+% \begin{macro}{\rebuttal@startlinkguard}
+% End of disable hyperlinks if |NoHyper| environment is available.
+%    \begin{macrocode}
 \newcommand\rebuttal@endlinkguard{
   \ifx\endNoHyper\@undefined\else
     \ifrebuttal@nohyperlinks
@@ -490,21 +557,26 @@
   \fi
 }
 %    \end{macrocode}
+% \end{macro}
 
 % TODO Comment labels tooltips
 % \begin{environment}{rebuttal}
 % The main environment that defines the remaining ones.
-% \changes{v0.1.1}{2024-11-XX}{Fixed incorrect bookmark structure}
+% \changes{v0.1.1}{2024-11-03}{Fixed incorrect bookmark structure}
 %    \begin{macrocode}
 \newenvironment{rebuttal}[1][]{%
   \rebuttal@startlinkguard
-  % Execute user code
+%    \end{macrocode}
+% Execute user code.
+%    \begin{macrocode}
   \pgfkeysvalueof{/rebuttal/execute on begin}%
   \begingroup
   \refstepcounter{rebuttal}%
   \if@twocolumn
     \onecolumn
-    % Remember the layout
+%    \end{macrocode}
+% Remember the layout.
+%    \begin{macrocode}
     \rebuttal@twocolumntrue
   \else
     \rebuttal@twocolumnfalse
@@ -559,8 +631,10 @@
       \PackageWarning{rebuttal}{Failed to patch the \string\@item\space command.
         Bookmarks may not be displayed correctly.}%
     }%
-    % Do not allow to place answers within a comment by undefining the answer
-    % environment
+%    \end{macrocode}
+% Do not allow to place answers within a comment by undefining the answer
+% environment
+%    \begin{macrocode}
     \let\answer\@undefined
     \let\endanswer\@undefined
     \stepcounter{rebuttalcomments}%
@@ -616,19 +690,23 @@
   \endgroup
   \par\addvspace{\bigskipamount}%
   \ifrebuttal@twocolumn
-    % Restore the layout
+%    \end{macrocode}
+% Restore the layout.
+%    \begin{macrocode}
     \twocolumn
   \fi
   \endgroup
-  % Execute user code
+%    \end{macrocode}
+% Execute user code.
+%    \begin{macrocode}
   \pgfkeysvalueof{/rebuttal/execute on end}%
   \rebuttal@endlinkguard
 }
 %    \end{macrocode}
 % \end{environment}
 
+% Support \textsf{cleveref}.
 %    \begin{macrocode}
-% Support cleveref
 \AtEndPreamble{%
   \@ifpackageloaded{cleveref}{%
     \crefname{rebuttalcomment}{comment}{comments}
@@ -654,12 +732,16 @@
     \gdef\string\rebuttaltotalchanges{\arabic{rebuttalchanges}}%
   }
 }
-
+%    \end{macrocode}
+% \begin{macro}{\rebuttalset}\marg{options}
+% Allows to update package options.
+%    \begin{macrocode}
 \newcommand\rebuttalset[1]{%
   \pgfqkeys{/rebuttal}{#1}%
 }
 %</package>
 %    \end{macrocode}
+% \end{macro}
 %
 % \subsection{Example}
 %
