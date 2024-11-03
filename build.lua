@@ -2,10 +2,15 @@ module = 'rebuttal'
 
 sourcefiledir = '.'
 
-demofiles = {'??-example.tex'}
-typesetfiles = {'rebuttal.dtx', '??-example.tex'}
+demofiles = {'??-*.tex'}
+docfiles = {'rebuttal.tex'}
+typesetfiles = {'rebuttal.dtx', '??-*.tex'}
 
-function typetset_example(fn)
+function examples_destdir()
+    return ctandir .. '/' .. module .. '/examples'
+end
+
+function typeset_example(fn)
     typesetexe = ''
     local texfn = unpackdir .. '/' .. fn
 
@@ -13,8 +18,8 @@ function typetset_example(fn)
     if not result == 0 then return result end
 
     local pdffn = string.gsub(fn, '.tex$', '.pdf', 1)
-    local destdir = ctandir .. '/' .. module .. '/examples'
 
+    local destdir = examples_destdir()
     result = mkdir(destdir)
     if not result == 0 then return result end
 
@@ -24,8 +29,16 @@ function typetset_example(fn)
     return cp(pdffn, unpackdir, destdir)
 end
 
+function typeset_demo_tasks()
+    local destdir = examples_destdir()
+    result = mkdir(destdir)
+    if not result == 0 then return result end
+    return cp('rebuttal.tex', unpackdir, destdir)
+end
+
 specialtypesetting = {}
-specialtypesetting['01-example.tex'] = {func = typetset_example}
+specialtypesetting['01-scrlttr2.tex'] = {func = typeset_example}
+specialtypesetting['02-article.tex'] = {func = typeset_example}
 
 uploadconfig = {
     pkg = 'rebuttal',

@@ -590,7 +590,7 @@
 % increment the level to anchor the following bookmarks below the current
 % bookmark. This ensures that the bookmark structure is correct even if the
 % document either does not use or provides structuring commands (\eg,
-% missing |\section| in a |scrlttr2| document).
+% missing |\section| in a \textsf{scrlttr2} document).
 %    \begin{macrocode}
     \ifx\Hy@currentbookmarklevel\@undefined\else
       \ifnum\Hy@currentbookmarklevel>0
@@ -803,16 +803,38 @@ We are looking forward to hearing from you.
 \closing{With kind regards,}
 
 \end{letter}
+\include{rebuttal}
+\end{document}
+%</example1>
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+%<*example2>
+\documentclass{article}
+\usepackage{rebuttal}
+\usepackage[colorlinks]{hyperref}
+\usepackage{lipsum}
+\usepackage{cleveref}
 
-\clearpage\noindent The following pages contain a list of editor's and
-reviewers' comments followed by our replies. The comments are sequentially
-numbered and associated either with the editor or the corresponding reviewer.
-The replies may contain references to changes in the original manuscript which
-are identified by a label consisting of a running number and followed by the
-label of the original comment in parentheses. The label back references the
-original reviewer comment within the manuscript. For instance, the reference
-\textbf{C2~(1.3)}, which is typeset in the manuscript margin, refers to the
-second change stemming from the third comment of the first reviewer.
+\begin{document}
+\section{Test}
+\input{rebuttal}
+\end{document}
+%</example2>
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+%<*rebuttal-comments>
+
+The following pages contain a list of editor's and reviewers' comments followed
+by our replies. The comments are sequentially numbered and associated either
+with the editor or the corresponding reviewer. The replies may contain
+references to changes in the original manuscript which are identified by a label
+consisting of a running number and followed by the label of the original comment
+in parentheses. The label back references the original reviewer comment within
+the manuscript. For instance, the reference \textbf{C2~(1.3)}, which is typeset
+in the manuscript margin, refers to the second change stemming from the third
+comment of the first reviewer.
 
 \begin{rebuttal}[Editor's Comments]
   \begin{comment}
@@ -890,10 +912,9 @@ Additional notes:
   \item If the references do not fit into a single line in the margin, you may
     force a \addition[label=a:break,ref={c:specific,c:c2},break]{break}.
 \end{itemize}
-
-\end{document}
-%</example1>
+%</rebuttal-comments>
 %    \end{macrocode}
+%
 % \Finale
 
 % \endinput
