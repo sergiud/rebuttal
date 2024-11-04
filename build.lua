@@ -52,7 +52,12 @@ uploadconfig = {
     update = true,
     uploader = 'Sergiu Deitsch',
     version = '0.1.0',
-    topic = {'editorial', 'notes'},
+    topic = {
+        'journalpub',
+        'letter',
+        'misc-paper',
+        'struc-mkup',
+    },
     license = 'lppl1.3c',
     announcement = '',
 }
