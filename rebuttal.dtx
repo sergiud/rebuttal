@@ -15,7 +15,7 @@
 % \iffalse
 %<package>\NeedsTeXFormat{LaTeX2e}
 %<package>\ProvidesPackage{rebuttal}
-%<package>   [2024-11-03 v0.1.1 Markup for rebuttal letters]
+%<package>   [2024-11-14 v0.1.1 Markup for rebuttal letters]
 %
 %<*driver>
 \ProvidesFile{rebuttal.dtx}
@@ -67,7 +67,7 @@
 %
 %
 % \changes{v0.1.0}{2024-11-01}{Initial release}
-% \changes{v0.1.1}{2024-11-03}{Improved documentation}
+% \changes{v0.1.1}{2024-11-14}{Improved documentation}
 %
 % \GetFileInfo{rebuttal.sty}
 %
@@ -80,7 +80,7 @@
 % \author{Sergiu % Deitsch\\%
 %   \href{mailto:sergiu.deitsch@gmail.com}{\texttt{sergiu.deitsch@gmail.com}}%
 % }
-% \date{November 3, 2024}
+% \date{November 14, 2024}
 %
 % \maketitle
 %
@@ -137,7 +137,9 @@
 % Within the manuscript, three main commands can be used to denote additions,
 % deletions, or changes. The corresponding commands are
 % |\addition|\oarg{options}\marg{text}, |\deletion|\oarg{options}\marg{text},
-% and |\change|\oarg{options}\marg{old text}\marg{new text}.
+% and |\change|\oarg{options}\marg{old text}\marg{new text}. While |\addition|
+% and |\deletion| require a single argument. |\change| expects two arguments,
+% where the first one denotes the changed text, and the second one the new text.
 %
 % All three commands require specifying their labels for referencing the
 % modifications using the \meta{label} option. Additionally, the \meta{ref}
@@ -147,10 +149,6 @@
 % \begin{verbatim}
 %   \addition[label=a:new,ref={c:c1,c:c2}]{new text}.
 % \end{verbatim}
-%
-% While |\addition| and
-% |\deletion| require a single argument. |\change| expects two arguments, where
-% the first one denotes the changed text, and the second one the new text.
 %
 % \subsection{Annotating Multiple Paragraphs}
 %
@@ -182,7 +180,7 @@
 % \DescribeMacro{\rebuttalset}
 % Once a manuscript has been accepted for publication, rebuttal annotations are
 % no longer necessary and only the accepted changes should be typeset.
-% \textsf{rebuttal} allows to disable annotation using the |\rebuttalset|
+% \textsf{rebuttal} allows to disable annotations using the |\rebuttalset|
 % command by disabling the \meta{marked} option, \ie,
 % \begin{verbatim}
 %   \rebuttalset{marked=false}
@@ -562,7 +560,7 @@
 % TODO Comment labels tooltips
 % \begin{environment}{rebuttal}
 % The main environment that defines the remaining ones.
-% \changes{v0.1.1}{2024-11-03}{Fixed incorrect bookmark structure}
+% \changes{v0.1.1}{2024-11-14}{Fixed incorrect bookmark structure}
 %    \begin{macrocode}
 \newenvironment{rebuttal}[1][]{%
   \rebuttal@startlinkguard

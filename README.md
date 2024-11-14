@@ -107,3 +107,8 @@ The `ref` option provided by markup commands may specify multiple labels:
 
 * Rebuttal markup cannot be used within floating environments such as `figure`
   and `table`, and the `\caption` command.
+
+## License
+
+The `rebuttal` package is distributed under the [LaTeX Project Public
+License 1.3](https://ctan.org/license/lppl1.3) or later.
