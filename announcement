@@ -1,0 +1,2 @@
+In this release, package documentation was extended. Additionally, the bookmark
+structure was fixed in cases where a top-level boomark does not exist.

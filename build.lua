@@ -51,7 +51,7 @@ uploadconfig = {
     bugtracker = 'https://github.com/sergiud/rebuttal/issues',
     update = true,
     uploader = 'Sergiu Deitsch',
-    version = '0.1.0',
+    version = '0.1.1',
     topic = {
         'journalpub',
         'letter',
@@ -59,5 +59,5 @@ uploadconfig = {
         'struc-mkup',
     },
     license = 'lppl1.3c',
-    announcement = '',
+    announcement_file = 'announcement',
 }
