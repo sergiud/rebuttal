@@ -20,3 +20,7 @@ compile:texlive2023:
 compile:texlive2024:
   image: sergiud/texlive:2024
   <<: *compile_definition
+
+compile:texlive2025:
+  image: sergiud/texlive:2025
+  <<: *compile_definition
