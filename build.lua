@@ -23,17 +23,7 @@ function typeset_example(fn)
     result = mkdir(destdir)
     if not result == 0 then return result end
 
-    result = cp(fn, unpackdir, destdir)
-    if not result == 0 then return result end
-
     return cp(pdffn, unpackdir, destdir)
-end
-
-function typeset_demo_tasks()
-    local destdir = examples_destdir()
-    result = mkdir(destdir)
-    if not result == 0 then return result end
-    return cp('rebuttal.tex', unpackdir, destdir)
 end
 
 specialtypesetting = {}
