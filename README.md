@@ -105,4 +105,4 @@ The `ref` option provided by markup commands may specify multiple labels:
 ## License
 
 The `rebuttal` package is distributed under the [LaTeX Project Public
-License 1.3](https://ctan.org/license/lppl1.3) or later.
+License 1.3c](https://ctan.org/license/lppl1.3c) or later.
