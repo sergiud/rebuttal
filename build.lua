@@ -32,6 +32,7 @@ end
 specialtypesetting = {}
 specialtypesetting['01-scrlttr2.tex'] = {func = typeset_example}
 specialtypesetting['02-article.tex'] = {func = typeset_example}
+specialtypesetting['03-floats.tex'] = {func = typeset_example}
 
 uploadconfig = {
     pkg = 'rebuttal',

@@ -79,7 +79,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{605}
+% \CheckSum{875}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -216,6 +216,30 @@
 % \meta{break} option places them below the annotation number.
 % \Cref{sec:options} lists the remaining options.
 %
+% \subsection{Annotating Floats, Captions, and Titles}
+%
+% Annotations can be used almost anywhere in a manuscript, including figures,
+% tables, their captions, table cells, minipages, footnotes, and section titles.
+% Margin notes are not available within floats and boxes. In such places, the
+% annotation label is therefore typeset inline right after the annotated text,
+% \eg,
+%
+% \begin{verbatim}
+%   \begin{figure}
+%     \centering
+%     \includegraphics{result}
+%     \caption{Reconstruction \addition[ref=c:c1]{of the phantom}.}
+%   \end{figure}
+% \end{verbatim}
+%
+% The \meta{inline} option places the label inline also where a margin note
+% would be possible.
+%
+% Annotated captions and section titles are numbered only once even though they
+% are typeset repeatedly. The list of figures, the table of contents, and
+% running heads show the annotated text without labels. PDF bookmarks contain
+% the new text only.
+%
 % \subsection{Annotating Multiple Paragraphs}
 %
 % \DescribeEnv{additionenv}
@@ -329,6 +353,8 @@
 %     the annotation stems from.
 %   \item[\texttt{break}] Places the references in the margin below the
 %     annotation number.
+%   \item[\texttt{inline}] Places the label right after the annotated text
+%     instead of the margin.
 %   \item[\texttt{color}=\meta{color}] Color of the annotation. Defaults to
 %     |RedViolet| for additions, |Firebrick3| for deletions, and |DodgerBlue3|
 %     for changes.
@@ -342,8 +368,18 @@
 %
 % \section{Known Limitations}
 %
-% Rebuttal markup cannot be used within floating environments such as |figure|
-% and |table|, or within the argument of the |\caption| command.
+% Annotations are recognized in captions only if |\addition|, |\deletion|, or
+% |\change| appear literally in the caption text rather than within the
+% definition of another command. Otherwise, an annotated caption that is
+% typeset repeatedly may be counted more than once.
+%
+% The optional arguments of annotations are discarded in lists, running heads,
+% and PDF bookmarks. Annotations there are therefore typeset using the global
+% colors and fonts.
+%
+% Within captions and titles, the |additionenv|, |changeenv|, and |deletionenv|
+% environments are annotated again in lists such as the list of figures. Use the
+% corresponding commands instead.
 %
 % \MaybeStop{\PrintChanges\PrintIndex}
 %
@@ -392,6 +428,14 @@
 \fi
 %    \end{macrocode}
 %
+% \LaTeX\ kernels released before October 2020 do not provide expandable
+% document commands.
+%    \begin{macrocode}
+\ifx\NewExpandableDocumentCommand\@undefined
+  \RequirePackage{xparse}
+\fi
+%    \end{macrocode}
+%
 % \begin{macro}{\rebuttal@triangle}
 % Draws the triangle used as the default answer label.
 %    \begin{macrocode}
@@ -435,13 +479,25 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% Switches for Boolean options and the page layout.
+% Switches for Boolean options, the page layout, and the placement of
+% annotation labels.
 %    \begin{macrocode}
 \newif\ifrebuttal@marked
 \newif\ifrebuttal@nohyperlinks
 \newif\ifrebuttal@refbreak
 \newif\ifrebuttal@twocolumn
+\newif\ifrebuttal@inline
+\newif\ifrebuttal@boxed
+\newif\ifrebuttal@margin
+\newif\ifrebuttal@annotated
 %    \end{macrocode}
+%
+% \begin{macro}{\rebuttal@inlinesep}
+% Space between the annotated text and an inline annotation label.
+%    \begin{macrocode}
+\newcommand\rebuttal@inlinesep{.25em}
+%    \end{macrocode}
+% \end{macro}
 %
 % \changes{v0.2.0}{2026-09-28}{Fixed \meta{answer/label} option being ignored}
 % \changes{v0.2.0}{2026-09-28}{Added \meta{answer/triangle} option}
@@ -530,12 +586,14 @@
 % Defines the options of the annotation type |#1| whose default color is |#2|.
 % The |\ref*| command without a hyperlink is available only if
 % \textsf{hyperref} is loaded.
+% \changes{v0.2.0}{2026-09-28}{Added \meta{inline} option}
 %    \begin{macrocode}
 \newcommand\rebuttal@define@keys[2]{%
   \pgfkeys{
     /rebuttal/#1/label/.initial=,
     /rebuttal/#1/label/.value required,
     /rebuttal/#1/break/.is if=rebuttal@refbreak,
+    /rebuttal/#1/inline/.is if=rebuttal@inline,
     /rebuttal/#1/ref/.initial=,
     /rebuttal/#1/ref/.value required,
     /rebuttal/#1/ref/create/.code={%
@@ -587,12 +645,60 @@
 \newlength\rebuttal@hskip
 %    \end{macrocode}
 %
+% \begin{macro}{\rebuttal@ifmarginavailable}
+% \changes{v0.2.0}{2026-09-28}{Place annotation labels inline where margin
+% notes are not available}
+% Executes |#1| if the annotation label can be placed in the margin and |#2|
+% otherwise. Margin notes are not available in inner mode, within floats, and
+% within boxes such as minipages, parboxes, and footnotes. Since \LaTeX\ resets
+% the paragraph parameters in all such boxes, the \texttt{boxed} switch is set
+% whenever this happens.
+%    \begin{macrocode}
+\newcommand\rebuttal@ifmarginavailable[2]{%
+  \rebuttal@margintrue
+  \ifinner
+    \rebuttal@marginfalse
+  \fi
+  \ifrebuttal@boxed
+    \rebuttal@marginfalse
+  \fi
+  \ifx\@captype\@undefined\else
+    \rebuttal@marginfalse
+  \fi
+  \ifrebuttal@inline
+    \rebuttal@marginfalse
+  \fi
+  \ifrebuttal@margin
+    #1%
+  \else
+    #2%
+  \fi
+}
+\AfterEndPreamble{%
+  \appto\@arrayparboxrestore{\rebuttal@boxedtrue}%
+  \appto\@parboxrestore{\rebuttal@boxedtrue}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\rebuttal@defprotect}
+% Defines the expandable command |#1| with the argument specification |#3|,
+% which expands to the robust command |#2| followed by empty options and the
+% arguments |#4|.
+%    \begin{macrocode}
+\newcommand\rebuttal@defprotect[4]{%
+  \NewExpandableDocumentCommand#1{#3}{\protect#2{}#4}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
 % \begin{macro}{\rebuttal@command}
+% \changes{v0.2.0}{2026-09-28}{Support annotations in captions and lists}
 % Defines the annotation command |\#1| and its counter. The command takes |#3|
 % arguments, the first of which is the optional list of options. |#2| typesets
 % the annotated text.
 %    \begin{macrocode}
-\newcommand\rebuttal@command[3]{%
+\newcommand\rebuttal@command[5]{%
   \newcounter{rebuttal#1}%
   \AtEndPreamble{%
     \@ifpackageloaded{cleveref}{%
@@ -600,13 +706,50 @@
     }{}%
   }%
 %    \end{macrocode}
+% The annotation command is robust. While typesetting, it annotates the text.
+% When written to a file or a mark, \eg, as part of a caption to the list of
+% figures or a section title to the running head, it is replaced by a variant
+% that typesets the annotated text only. Otherwise, each entry in the list would
+% be numbered and labeled again. |#4| is the argument specification of the
+% command and |#5| the arguments passed to the replacement, which discards the
+% options. This way, the options are exposed neither to case changes in running
+% heads nor to PDF strings.
+%    \begin{macrocode}
+  \expandafter\edef\csname #1\endcsname{%
+    \noexpand\ifx\noexpand\protect\noexpand\@typeset@protect
+      \noexpand\expandafter
+      \expandafter\noexpand\csname rebuttal@#1@typeset\endcsname
+    \noexpand\else
+      \noexpand\expandafter
+      \expandafter\noexpand\csname rebuttal@#1@protect\endcsname
+    \noexpand\fi
+  }%
+  \expandafter\rebuttal@defprotect
+    \csname rebuttal@#1@protect\expandafter\endcsname
+    \csname rebuttal@#1@listed\endcsname{#4}{#5}%
+  \expandafter\newcommand\csname rebuttal@#1@listed\endcsname[#3]{%
+    \begingroup
+      #2%
+    \endgroup
+  }%
+%    \end{macrocode}
 % Marked version with full output.
 %    \begin{macrocode}
-  \expandafter\newcommand\csname #1\endcsname[#3][]{%
+  \expandafter\newcommand\csname rebuttal@#1@typeset\endcsname[#3][]{%
     \ifrebuttal@marked
       \stepcounter{rebuttalchanges}%
-      \refstepcounter{rebuttal#1}%
       \begingroup
+%    \end{macrocode}
+% \changes{v0.2.0}{2026-09-28}{Do not redirect subsequent labels to
+% annotations}
+% The annotation must not become the target of subsequent labels, \eg, of a
+% |\label| following an annotated |\caption|. Therefore, the counter is
+% incremented within a group. Since \textsf{hyperref} sets the link target
+% globally, the previous target is restored after the label of the annotation
+% has been defined.
+%    \begin{macrocode}
+        \let\rebuttal@currentHref\@currentHref
+        \refstepcounter{rebuttal#1}%
         \tikzset{notestyleraw/.append style={
           inner sep=\z@,
           rounded corners=\z@,
@@ -619,6 +762,9 @@
         \ifx\rebuttal@label\@empty\else
           \label{\rebuttal@label}%
         \fi
+        \ifx\rebuttal@currentHref\@undefined\else
+          \global\let\@currentHref\rebuttal@currentHref
+        \fi
         \colorlet{Changes@Color}{rebuttal@#1}%
         \begingroup
 %    \end{macrocode}
@@ -630,38 +776,141 @@
         \ifx\tikzexternaldisable\@undefined\else
           \tikzexternaldisable
         \fi
-%    \end{macrocode}
-% Shrink to text.
-%    \begin{macrocode}
-        \settowidth\rebuttal@textwidth{\rebuttal@reference{#1}}%
-        \tikzset{notestyleraw/.append style={
-          text width=\rebuttal@textwidth,
-        }}%
-%    \end{macrocode}
-% Place labels in left margin at the same distance as on the right.
-%    \begin{macrocode}
-        \setlength\rebuttal@hskip{\marginparwidth}%
-        \addtolength\rebuttal@hskip{-\rebuttal@textwidth}%
-        \let\old@xmpar\@xmpar
-%    \end{macrocode}
-% Hook into the \LaTeX\ kernel command because |\if@firstcolumn| is unreliable
-% for margin notes, which are floats.
-%    \begin{macrocode}
-        \renewcommand\@xmpar[2][]{%
-          \old@xmpar[\hspace*{\rebuttal@hskip}####1]{####2}%
-        }%
-        \todo
-        [
-          backgroundcolor=none,
-          bordercolor=none,
-          linecolor=rebuttal@#1,
-        ]{%
-          \rebuttal@reference{#1}%
+        \rebuttal@ifmarginavailable{%
+          \rebuttal@marginreference{#1}%
+        }{%
+          \rebuttal@inlinereference{#1}%
         }%
       \endgroup
     \else
       #2%
     \fi
+  }%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\rebuttal@inlinereference}
+% Places the label of an annotation of type |#1| inline right after the
+% annotated text.
+%    \begin{macrocode}
+\newcommand\rebuttal@inlinereference[1]{%
+  \leavevmode
+  \nobreak
+  \hspace{\rebuttal@inlinesep}%
+  \rebuttal@reference{#1}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\rebuttal@marginreference}
+% Places the label of an annotation of type |#1| in the margin.
+%    \begin{macrocode}
+\newcommand\rebuttal@marginreference[1]{%
+%    \end{macrocode}
+% Shrink to text.
+%    \begin{macrocode}
+  \settowidth\rebuttal@textwidth{\rebuttal@reference{#1}}%
+  \tikzset{notestyleraw/.append style={
+    text width=\rebuttal@textwidth,
+  }}%
+%    \end{macrocode}
+% Place labels in left margin at the same distance as on the right.
+%    \begin{macrocode}
+  \setlength\rebuttal@hskip{\marginparwidth}%
+  \addtolength\rebuttal@hskip{-\rebuttal@textwidth}%
+  \let\old@xmpar\@xmpar
+%    \end{macrocode}
+% Hook into the \LaTeX\ kernel command because |\if@firstcolumn| is unreliable
+% for margin notes, which are floats.
+%    \begin{macrocode}
+  \renewcommand\@xmpar[2][]{%
+    \old@xmpar[\hspace*{\rebuttal@hskip}##1]{##2}%
+  }%
+  \todo
+  [
+    backgroundcolor=none,
+    bordercolor=none,
+    linecolor=rebuttal@#1,
+  ]{%
+    \rebuttal@reference{#1}%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\rebuttal@ifannotated}
+% Executes |#2| if the text |#1| contains an annotation command and |#3|
+% otherwise.
+%    \begin{macrocode}
+\newcommand\rebuttal@ifannotated[1]{%
+  \rebuttal@annotatedfalse
+  \edef\reserved@a{\detokenize{#1}}%
+  \rebuttal@ifcontains{\addition}%
+  \rebuttal@ifcontains{\deletion}%
+  \rebuttal@ifcontains{\change}%
+  \ifrebuttal@annotated
+    \expandafter\@firstoftwo
+  \else
+    \expandafter\@secondoftwo
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\rebuttal@ifcontains}
+% Sets the \texttt{annotated} switch if |\reserved@a| contains the detokenized
+% command |#1|.
+%    \begin{macrocode}
+\newcommand\rebuttal@ifcontains[1]{%
+  \edef\reserved@b{\noexpand\in@{\detokenize{#1}}{\reserved@a}}%
+  \reserved@b
+  \ifin@
+    \rebuttal@annotatedtrue
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\rebuttal@savecounters}
+% Saves the values of the annotation counters in |\rebuttal@restorecounters|.
+%    \begin{macrocode}
+\newcommand\rebuttal@savecounters{%
+  \xdef\rebuttal@restorecounters{%
+    \noexpand\setcounter{rebuttalchanges}{\the\c@rebuttalchanges}%
+    \noexpand\setcounter{rebuttaladdition}{\the\c@rebuttaladdition}%
+    \noexpand\setcounter{rebuttaldeletion}{\the\c@rebuttaldeletion}%
+    \noexpand\setcounter{rebuttalchange}{\the\c@rebuttalchange}%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\rebuttal@captionpass}
+% Restores the annotation counters saved by |\rebuttal@savecounters|.
+%    \begin{macrocode}
+\newrobustcmd\rebuttal@captionpass{\rebuttal@restorecounters}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@makecaption}
+% \changes{v0.2.0}{2026-09-28}{Number annotations in captions consistently}
+% Document classes and the \textsf{caption} package typeset a caption
+% repeatedly, \eg, to determine whether it fits into a single line. To number
+% annotations consistently across these passes, the annotation counters are
+% restored at the beginning of each pass. The last pass determines the final
+% values of the counters. Captions without annotations are left untouched
+% because some implementations test whether the caption text is empty.
+%    \begin{macrocode}
+\AfterEndPreamble{%
+  \let\rebuttal@makecaption\@makecaption
+  \long\def\@makecaption#1#2{%
+    \rebuttal@ifannotated{#2}{%
+      \rebuttal@savecounters
+      \rebuttal@makecaption{#1}{\rebuttal@captionpass#2}%
+    }{%
+      \rebuttal@makecaption{#1}{#2}%
+    }%
   }%
 }
 %    \end{macrocode}
@@ -736,9 +985,24 @@
 % \begin{macro}{\change}
 % Define the annotation commands.
 %    \begin{macrocode}
-\rebuttal@command{addition}{\rebuttal@added{#2}}{2}
-\rebuttal@command{deletion}{\rebuttal@deleted{#2}}{2}
-\rebuttal@command{change}{\rebuttal@replaced{#2}{#3}}{3}
+\rebuttal@command{addition}{\rebuttal@added{#2}}{2}{om}{{#2}}
+\rebuttal@command{deletion}{\rebuttal@deleted{#2}}{2}{om}{{#2}}
+\rebuttal@command{change}{\rebuttal@replaced{#2}{#3}}{3}{omm}{{#2}{#3}}
+%    \end{macrocode}
+% PDF strings, such as bookmarks, contain the new text only.
+%    \begin{macrocode}
+\AtEndPreamble{%
+  \ifx\pdfstringdefDisableCommands\@undefined\else
+    \pdfstringdefDisableCommands{%
+      \let\addition\rebuttal@addition@protect
+      \let\deletion\rebuttal@deletion@protect
+      \let\change\rebuttal@change@protect
+      \let\rebuttal@addition@listed\@secondoftwo
+      \let\rebuttal@deletion@listed\@gobbletwo
+      \let\rebuttal@change@listed\@thirdofthree
+    }%
+  \fi
+}
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
@@ -1098,6 +1362,100 @@ We look forward to hearing from you.
 \input{rebuttal}
 \end{document}
 %</example2>
+%    \end{macrocode}
+%
+% The third example annotates the content of floats, their captions, boxes,
+% footnotes, and a section title, which also appears in the table of contents,
+% the running head, and the PDF bookmarks.
+%    \begin{macrocode}
+%<*example3>
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{rebuttal}
+\usepackage[colorlinks]{hyperref}
+\usepackage{cleveref}
+
+\pagestyle{headings}
+
+\begin{document}
+
+\begin{rebuttal}[Reviewer 1]
+  \begin{comment}
+    \label{c:captions}
+    The figure captions are not self-contained.
+  \end{comment}
+
+  \begin{answer}
+    We have extended the captions of \cref{fig:result,tab:runtime}, see
+    \cref{a:caption,ch:caption,a:long}.
+  \end{answer}
+
+  \begin{comment}
+    \label{c:data}
+    Please report the runtime of the baseline.
+  \end{comment}
+
+  \begin{answer}
+    The runtime of the baseline is now reported in \cref{tab:runtime},
+    see \cref{a:cell,a:section}. Additionally,
+    \cref{a:minipage,a:footnote} clarify the setup.
+  \end{answer}
+\end{rebuttal}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\section{Results \addition[label=a:section,ref=c:data]{and Runtime}}
+
+\Cref{fig:result} shows the
+\addition[label=a:text,ref=c:captions]{qualitative} results.
+
+\begin{figure}
+  \centering
+  \addition[label=a:image,ref=c:captions]{%
+    \includegraphics[width=.5\linewidth]{example-image-a}%
+  }
+  \caption{%
+    Reconstruction \addition[label=a:caption,ref=c:captions]{of the
+    phantom}.
+  }
+  \label{fig:result}
+\end{figure}
+
+\begin{table}
+  \centering
+  \caption{%
+    \change[label=ch:caption,ref=c:captions]{Runtime}{%
+      Runtime in seconds%
+    } of all methods.
+    \addition[label=a:long,ref=c:captions]{The table lists the mean and
+    the standard deviation of ten runs on the same hardware.}
+  }
+  \label{tab:runtime}
+  \begin{tabular}{lr}
+    Method & Runtime \\
+    Ours & 1.2 \\
+    \addition[label=a:cell,ref=c:data]{Baseline} & 3.4 \\
+    \deletion[label=d:cell,ref=c:data]{Other} & 5.6 \\
+  \end{tabular}
+\end{table}
+
+\noindent
+\begin{minipage}{\linewidth}
+  All experiments were performed on
+  \addition[label=a:minipage,ref=c:data]{the same} workstation.
+\end{minipage}
+
+The implementation is publicly available.%
+\footnote{%
+  The source code is \addition[label=a:footnote,ref=c:data]{released}
+  under an open license.
+}
+
+The document contains \rebuttaltotalchanges\ changes.
+\end{document}
+%</example3>
 %    \end{macrocode}
 %
 % The rebuttal content shared by both examples. It contains comments, answers,
