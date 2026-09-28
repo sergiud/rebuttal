@@ -765,6 +765,16 @@
 \usepackage{microtype}
 \usepackage{lipsum}
 \usepackage{rebuttal}
+%    \end{macrocode}
+% Given the \texttt{american} option, \textsf{varioref} adds its language
+% strings to \cs{extrasenglish}, which \textsf{babel} does not define in this
+% case. The resulting macro invokes itself, and \textsf{KOMA-Script} classes
+% run into an infinite recursion when executing it. Defining the macro
+% beforehand avoids the problem until the
+% \href{https://github.com/latex3/latex2e/issues/2112}{underlying issue} is
+% resolved.
+%    \begin{macrocode}
+\providecommand*\extrasenglish{}
 \usepackage{varioref}
 \usepackage{hyperref}
 \usepackage{cleveref}
