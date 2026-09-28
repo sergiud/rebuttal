@@ -66,11 +66,11 @@ Within the manuscript, three main commands can be used to denote additions,
 deletions, or changes. The corresponding commands are `\addition`, `\deletion`,
 and `\change`.
 
-All three commands require specifying their labels for referencing the
-modifications using the `label` option. Additionally, the `ref` option back
-references the original reviewer comment. While `\addition` and `\deletion`
-require a single argument. `\change` expects two arguments, where the first one
-denotes the changed text, and the second one the new text.
+The optional `label` option assigns a label for referencing the modification.
+Additionally, the `ref` option back references the original reviewer comment.
+While `\addition` and `\deletion` require a single argument. `\change` expects
+two arguments, where the first one denotes the changed text, and the second one
+the new text.
 
 ### Annotating Multiple Paragraphs
 

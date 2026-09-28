@@ -72,6 +72,13 @@
 % \changes{v0.1.0}{2024-11-01}{Initial release}
 % \changes{v0.1.1}{2024-11-14}{Improved documentation}
 % \changes{v0.2.0}{2025-12-16}{Improved documentation}
+% \changes{v0.2.0}{2026-09-28}{Do not load \textsf{hyperref} implicitly}
+% \changes{v0.2.0}{2026-09-28}{Fixed misspelled answer bookmarks}
+% \changes{v0.2.0}{2026-09-28}{Added options for customizing bookmark and
+% tooltip texts}
+% \changes{v0.2.0}{2026-09-28}{Fixed spurious spaces}
+% \changes{v0.2.0}{2026-09-28}{Do not underline emphasized text}
+% \changes{v0.2.0}{2026-09-28}{Made the \meta{label} option optional}
 %
 % \GetFileInfo{rebuttal.sty}
 %
@@ -145,8 +152,8 @@
 % and |\deletion| require a single argument. |\change| expects two arguments,
 % where the first one denotes the changed text, and the second one the new text.
 %
-% All three commands require specifying their labels for referencing the
-% modifications using the \meta{label} option. Additionally, the \meta{ref}
+% The optional \meta{label} option assigns a label for referencing the
+% modification. Additionally, the \meta{ref}
 % option back references the original reviewer comment and may specify multiple
 % labels, \eg
 %
@@ -191,6 +198,20 @@
 % \end{verbatim}
 % which will disable the annotiations in the current group.
 %
+% \subsection{Customizing Bookmarks and Answer Labels}
+%
+% The bookmark texts of comments and answers can be changed using the
+% \meta{comment/bookmark} and \meta{answer/bookmark} options, which default to
+% |Comment| and |Answer to|, respectively. The \meta{answer/tooltip} option
+% sets the tooltip of the answer label, which defaults to |Reply|. The
+% \meta{answer/label} option replaces the answer label and the
+% \meta{answer/label/font} option sets its font. The style of the default
+% triangle label can be changed using the \meta{answer/triangle/.style}
+% option, \eg,
+% \begin{verbatim}
+%   \rebuttalset{answer/bookmark=Reply to,answer/triangle/.style={red}}
+% \end{verbatim}
+%
 % \section{Known Limitations}
 %
 % Rebuttal markup cannot be used within floating environments such as |figure|
@@ -207,36 +228,44 @@
 %    \end{macrocode}
 % Package dependencies.
 %    \begin{macrocode}
-\RequirePackage{calc}
 \RequirePackage{environ}
 \RequirePackage{etoolbox}
-\RequirePackage{marginnote}
 \RequirePackage{pgfkeys}
-\RequirePackage{soul}
 \RequirePackage{tikz}
 \RequirePackage{todonotes}
-\RequirePackage{ulem}
+\RequirePackage[normalem]{ulem}
 \RequirePackage{xcolor}
-\RequirePackage{xstring}
 %    \end{macrocode}
-
-% \changes{v0.2.0}{2025-01-21}{Do not require loading \textsf{xcolor} with
+%
+% \changes{v0.2.0}{2026-09-28}{Do not require loading \textsf{xcolor} with
 % specific options}
+% Define the default colors unless they are defined already.
 %    \begin{macrocode}
 \providecolor{DodgerBlue3}{rgb}{.094,.455,.804}
 \providecolor{Firebrick3}{rgb}{.804,.15,.15}
 \providecolor{RedViolet}{RGB}{157,0,97}
-
-\AtEndPreamble{
-  \RequirePackage{pdfcomment}
+%    \end{macrocode}
+%
+% \textsf{pdfcomment} provides tooltips for answer labels. Since
+% \textsf{pdfcomment} requires \textsf{hyperref}, load it only if
+% \textsf{hyperref} is loaded as well.
+%    \begin{macrocode}
+\AtEndPreamble{%
+  \@ifpackageloaded{hyperref}{%
+    \RequirePackage{pdfcomment}%
+  }{}%
 }
-
+%    \end{macrocode}
+%
+% \LaTeX\ kernels released before 2018 do not provide |\counterwithin|.
+%    \begin{macrocode}
 \ifx\counterwithin\@undefined
-\RequirePackage{chngcntr}
+  \RequirePackage{chngcntr}
 \fi
 %    \end{macrocode}
+%
 % \begin{macro}{\rebuttal@triangle}
-% The following command is used to generate a triangle in the left margin.
+% Draws the triangle used as the default answer label.
 %    \begin{macrocode}
 \newcommand\rebuttal@triangle{%
   \begingroup
@@ -244,15 +273,16 @@
     \tikzexternaldisable
   \fi
   \begin{tikzpicture}[x=.5em,y=.5em]
-    \fill[/rebuttal/answer/label] (0,0) -- (0,1) -- (.75,.5) -- cycle;
+    \fill[/rebuttal/answer/triangle]
+      (0,0) -- (0,1) -- (.75,.5) -- cycle;
   \end{tikzpicture}%
   \endgroup
 }
 %    \end{macrocode}
 % \end{macro}
+%
 % \begin{macro}{\rebuttal@decbookmarklevel}
-% Unless \textsf{hyperref} was not loaded, the command decrements the current
-% bookmark level.
+% Decrements the current bookmark level if \textsf{hyperref} is loaded.
 %    \begin{macrocode}
 \newcommand\rebuttal@decbookmarklevel{%
   \ifx\Hy@currentbookmarklevel\@undefined\else
@@ -263,10 +293,9 @@
 }
 %    \end{macrocode}
 % \end{macro}
-
+%
 % \begin{macro}{\rebuttal@incbookmarklevel}
-% Unless \textsf{hyperref} was not loaded, the command incements the current
-% bookmark level.
+% Increments the current bookmark level if \textsf{hyperref} is loaded.
 %    \begin{macrocode}
 \newcommand\rebuttal@incbookmarklevel{%
   \ifx\Hy@currentbookmarklevel\@undefined\else
@@ -277,13 +306,19 @@
 }
 %    \end{macrocode}
 % \end{macro}
-
+%
+% Switches for Boolean options and the page layout.
 %    \begin{macrocode}
 \newif\ifrebuttal@marked
 \newif\ifrebuttal@nohyperlinks
 \newif\ifrebuttal@refbreak
 \newif\ifrebuttal@twocolumn
-
+%    \end{macrocode}
+%
+% \changes{v0.2.0}{2026-09-28}{Fixed \meta{answer/label} option being ignored}
+% \changes{v0.2.0}{2026-09-28}{Added \meta{answer/triangle} option}
+% Global options and their defaults.
+%    \begin{macrocode}
 \pgfkeys{
   /rebuttal/.is family,
   /rebuttal/execute on begin/.initial=,
@@ -297,7 +332,9 @@
   /rebuttal/title/format/.code=#1:,
   /rebuttal/change/from command/.store in=\rebuttal@changefrom,
   /rebuttal/change/from command=\sout,
-  /rebuttal/change/from color/.code={\colorlet{rebuttal@change@from}{#1}},
+  /rebuttal/change/from color/.code={%
+    \colorlet{rebuttal@change@from}{#1}%
+  },
   /rebuttal/change/from color=DodgerBlue3!50,
   /rebuttal/deletion/command/.store in=\rebuttal@delete,
   /rebuttal/deletion/command=\xout,
@@ -305,24 +342,38 @@
   /rebuttal/comment/font=\normalfont\itshape,
   /rebuttal/comment/label/font/.store in=\rebuttal@commentlabelfont,
   /rebuttal/comment/label/font=\normalfont\rmfamily\bfseries,
+  /rebuttal/comment/bookmark/.store in=\rebuttal@commentbookmark,
+  /rebuttal/comment/bookmark=Comment,
   /rebuttal/answer/font/.store in=\rebuttal@answerfont,
   /rebuttal/answer/font=\normalfont,
   /rebuttal/answer/label/.store in=\rebuttal@answerlabel,
   /rebuttal/answer/label={\rebuttal@triangle},
   /rebuttal/answer/label/font/.store in=\rebuttal@answerlabelfont,
   /rebuttal/answer/label/font=\normalfont,
-  /rebuttal/answer/label/.style={black!65},
+  /rebuttal/answer/triangle/.style={black!65},
+  /rebuttal/answer/bookmark/.store in=\rebuttal@answerbookmark,
+  /rebuttal/answer/bookmark=Answer to,
+  /rebuttal/answer/tooltip/.store in=\rebuttal@answertooltip,
+  /rebuttal/answer/tooltip=Reply,
   /rebuttal/reference/font/.store in=\rebuttal@referencefont,
-  /rebuttal/reference/font={%
-    \tiny\bfseries%
-  },
-  % TODO does not work within \todo
-  %/rebuttal/reference/.code={%
-  %},
+  /rebuttal/reference/font=\tiny\bfseries,
 }
-
-\let\rebuttalanswerlabel\rebuttal@answerlabel
-
+%    \end{macrocode}
+%
+% \begin{macro}{\rebuttalanswerlabel}
+% \changes{v0.2.0}{2026-09-28}{Reflect changes of the \meta{answer/label}
+% option}
+% Typesets the current answer label.
+%    \begin{macrocode}
+\newrobustcmd\rebuttalanswerlabel{\rebuttal@answerlabel}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\rebuttal@reference}
+% Typesets the margin label of an annotation of type |#1|. The label consists
+% of the uppercase initial of the type, the annotation number, and the
+% references to the comments the annotation stems from.
+%    \begin{macrocode}
 \newrobustcmd\rebuttal@reference[1]{%
   \begingroup
   \rebuttal@referencefont
@@ -338,25 +389,36 @@
       \enspace
     \fi
     \normalfont
-    % Reset color (TODO Maybe allow to modify the color)
+    % Reset the color. TODO Allow modifying the color.
     \color{black}%
     (\pgfkeys{/rebuttal/#1/ref/all})%
   \end{tabular}%
   \endgroup
 }
-
-\newcommand\rebuttal@define@keys[2]{
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\rebuttal@define@keys}
+% Defines the options of the annotation type |#1| whose default color is |#2|.
+% The |\ref*| command without a hyperlink is available only if
+% \textsf{hyperref} is loaded.
+%    \begin{macrocode}
+\newcommand\rebuttal@define@keys[2]{%
   \pgfkeys{
     /rebuttal/#1/label/.initial=,
     /rebuttal/#1/label/.value required,
     /rebuttal/#1/break/.is if=rebuttal@refbreak,
     /rebuttal/#1/ref/.initial=,
     /rebuttal/#1/ref/.value required,
-    /rebuttal/#1/ref/create/.code={
-      \ifrebuttal@nohyperlinks
-        \ref*{##1}%
-      \else
+    /rebuttal/#1/ref/create/.code={%
+      \ifx\NoHyper\@undefined
         \ref{##1}%
+      \else
+        \ifrebuttal@nohyperlinks
+          \ref*{##1}%
+        \else
+          \ref{##1}%
+        \fi
       \fi
     },
     /rebuttal/#1/ref/all/.code={%
@@ -364,7 +426,6 @@
       \edef\rebuttal@tmp{\rebuttal@currefs}%
       \foreach
       [
-        %expand list,
         count=\ri from 0,
       ]
       \r in \rebuttal@tmp {%
@@ -377,20 +438,32 @@
     /rebuttal/#1/color/.code={\colorlet{rebuttal@#1}{##1}},
     /rebuttal/#1/color=#2,
     /rebuttal/#1/font/.value required,
-    /rebuttal/#1/font/.code={
+    /rebuttal/#1/font/.code={%
       \expandafter\def\csname rebuttal@#1@font\endcsname{##1}%
     },
     /rebuttal/#1/font=\normalfont\mdseries,
-  }
+  }%
 }
-
+%    \end{macrocode}
+% \end{macro}
+%
+% Define the options of all annotation types.
+%    \begin{macrocode}
 \rebuttal@define@keys{addition}{RedViolet}
 \rebuttal@define@keys{deletion}{Firebrick3}
 \rebuttal@define@keys{change}{DodgerBlue3}
-
+%    \end{macrocode}
+%
+%    \begin{macrocode}
 \newlength\rebuttal@textwidth
 \newlength\rebuttal@hskip
-
+%    \end{macrocode}
+%
+% \begin{macro}{\rebuttal@command}
+% Defines the annotation command |\#1| and its counter. The command takes |#3|
+% arguments, the first of which is the optional list of options. |#2| typesets
+% the annotated text.
+%    \begin{macrocode}
 \newcommand\rebuttal@command[3]{%
   \newcounter{rebuttal#1}%
   \AtEndPreamble{%
@@ -398,7 +471,9 @@
       \crefname{rebuttal#1}{#1}{#1s}%
     }{}%
   }%
-  % Marked version with full output
+%    \end{macrocode}
+% Marked version with full output.
+%    \begin{macrocode}
   \expandafter\newcommand\csname #1\endcsname[#3][]{%
     \ifrebuttal@marked
       \stepcounter{rebuttalchanges}%
@@ -409,7 +484,13 @@
           rounded corners=\z@,
         }}%
         \pgfqkeys{/rebuttal/#1}{##1}%
-        \label{\pgfkeysvalueof{/rebuttal/#1/label}}%
+%    \end{macrocode}
+% Define a label only if one was provided.
+%    \begin{macrocode}
+        \pgfkeysgetvalue{/rebuttal/#1/label}\rebuttal@label
+        \ifx\rebuttal@label\@empty\else
+          \label{\rebuttal@label}%
+        \fi
         \colorlet{Changes@Color}{rebuttal@#1}%
         \begingroup
 %    \end{macrocode}
@@ -417,7 +498,7 @@
 %    \begin{macrocode}
           #2%
         \endgroup
-        \StrLeft{#1}{1}[\rebuttal@id]%
+        \edef\rebuttal@id{\@car#1\@nil}%
         \ifx\tikzexternaldisable\@undefined\else
           \tikzexternaldisable
         \fi
@@ -425,7 +506,9 @@
 % Shrink to text.
 %    \begin{macrocode}
         \settowidth\rebuttal@textwidth{\rebuttal@reference{#1}}%
-        \tikzset{notestyleraw/.append style={text width=\rebuttal@textwidth}}%
+        \tikzset{notestyleraw/.append style={
+          text width=\rebuttal@textwidth,
+        }}%
 %    \end{macrocode}
 % Place labels in left margin at the same distance as on the right.
 %    \begin{macrocode}
@@ -433,8 +516,8 @@
         \addtolength\rebuttal@hskip{-\rebuttal@textwidth}%
         \let\old@xmpar\@xmpar
 %    \end{macrocode}
-% Hook into \LaTeX\ kernel command since |\if@firstcolumn| is not unreliable
-% because margin notes are floats.
+% Hook into the \LaTeX\ kernel command because |\if@firstcolumn| is unreliable
+% for margin notes, which are floats.
 %    \begin{macrocode}
         \renewcommand\@xmpar[2][]{%
           \old@xmpar[\hspace*{\rebuttal@hskip}####1]{####2}%
@@ -444,10 +527,8 @@
           backgroundcolor=none,
           bordercolor=none,
           linecolor=rebuttal@#1,
-          %size=\tiny,
         ]{%
           \rebuttal@reference{#1}%
-          %\pgfkeys{/rebuttal/reference=#1}
         }%
       \endgroup
     \else
@@ -456,38 +537,44 @@
   }%
 }
 %    \end{macrocode}
-
+% \end{macro}
+%
 % \begin{environment}{additionenv}
-% Provide an equivalent environment for the |\addition| command.
+% Provides an environment equivalent to the |\addition| command.
 %    \begin{macrocode}
 \NewEnviron{additionenv}[1][]{%
   \addition[#1]{\BODY}%
 }%
 %    \end{macrocode}
 % \end{environment}
-
+%
 % \begin{environment}{changeenv}
-% Provide an equivalent environment for the |\change| command.
+% Provides an environment equivalent to the |\change| command.
 %    \begin{macrocode}
 \NewEnviron{changeenv}[2][]{%
   \change[#1]{#2}{\BODY}%
 }%
 %    \end{macrocode}
 % \end{environment}
-
+%
 % \begin{environment}{deletionenv}
-% Provide an equivalent environment for the |\deletion| command.
+% Provides an environment equivalent to the |\deletion| command.
 %    \begin{macrocode}
 \NewEnviron{deletionenv}[1][]{%
   \deletion[#1]{\BODY}%
 }%
 %    \end{macrocode}
 % \end{environment}
-
+%
+% \begin{macro}{\rebuttal@added}
+% \begin{macro}{\rebuttal@deleted}
+% \begin{macro}{\rebuttal@replaced}
+% Typeset added, deleted, and replaced text. Deleted text is omitted if
+% annotations are disabled.
 %    \begin{macrocode}
 \newcommand\rebuttal@added[1]{%
   \ifrebuttal@marked
-    \rebuttal@addition@font%
+    \rebuttal@addition@font
     \textcolor{rebuttal@addition}{#1}%
   \else
     #1%
@@ -496,14 +583,14 @@
 
 \newcommand\rebuttal@deleted[1]{%
   \ifrebuttal@marked
-    \rebuttal@deletion@font%
+    \rebuttal@deletion@font
     \textcolor{rebuttal@deletion}{\rebuttal@delete{#1}}%
   \fi
 }
 
 \newcommand\rebuttal@replaced[2]{%
   \ifrebuttal@marked
-    \rebuttal@change@font%
+    \rebuttal@change@font
     \textcolor{rebuttal@change@from}{\rebuttal@changefrom{#1}}%
     \allowbreak
     \textcolor{rebuttal@change}{#2}%
@@ -511,11 +598,28 @@
     #2%
   \fi
 }
-
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\addition}
+% \begin{macro}{\deletion}
+% \begin{macro}{\change}
+% Define the annotation commands.
+%    \begin{macrocode}
 \rebuttal@command{addition}{\rebuttal@added{#2}}{2}
 \rebuttal@command{deletion}{\rebuttal@deleted{#2}}{2}
 \rebuttal@command{change}{\rebuttal@replaced{#2}{#3}}{3}
-
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+% The |rebuttalcomments| and |rebuttalchanges| counters count all comments and
+% annotations in the document. The remaining counters number the |rebuttal|
+% environments, the comments within them, and the answers to the comments.
+%    \begin{macrocode}
 \newcounter{rebuttalcomments}
 \newcounter{rebuttalchanges}
 
@@ -530,17 +634,18 @@
 \let\theHrebuttalcomment\therebuttalcomment
 
 \renewcommand\therebuttalanswer{%
-  \therebuttalcomment%
+  \therebuttalcomment
 }
 
-\counterwithin*{rebuttalcomment}{rebuttal}%
-\counterwithin*{rebuttalanswer}{rebuttalcomment}%
+\counterwithin*{rebuttalcomment}{rebuttal}
+\counterwithin*{rebuttalanswer}{rebuttalcomment}
 
 \newdimen\rebuttal@labelsep
 %    \end{macrocode}
-
+%
 % \begin{macro}{\rebuttal@startlinkguard}
-% Disable hyperlinks if |NoHyper| environment is available.
+% Disables hyperlinks if the \meta{no hyperlinks} option is set and the
+% |NoHyper| environment is available.
 %    \begin{macrocode}
 \newcommand\rebuttal@startlinkguard{%
   \ifx\NoHyper\@undefined\else
@@ -551,11 +656,11 @@
 }
 %    \end{macrocode}
 % \end{macro}
-
-% \begin{macro}{\rebuttal@startlinkguard}
-% End of disable hyperlinks if |NoHyper| environment is available.
+%
+% \begin{macro}{\rebuttal@endlinkguard}
+% Re-enables hyperlinks disabled by |\rebuttal@startlinkguard|.
 %    \begin{macrocode}
-\newcommand\rebuttal@endlinkguard{
+\newcommand\rebuttal@endlinkguard{%
   \ifx\endNoHyper\@undefined\else
     \ifrebuttal@nohyperlinks
       \end{NoHyper}%
@@ -564,10 +669,9 @@
 }
 %    \end{macrocode}
 % \end{macro}
-
-% TODO Comment labels tooltips
+%
 % \begin{environment}{rebuttal}
-% The main environment that defines the remaining ones.
+% The main environment, which defines the remaining ones.
 % \changes{v0.1.1}{2024-11-14}{Fixed incorrect bookmark structure}
 %    \begin{macrocode}
 \newenvironment{rebuttal}[1][]{%
@@ -592,64 +696,58 @@
   \addvspace{\bigskipamount}%
   \ifstrempty{#1}{}{%
 %    \end{macrocode}
-% In case the current bookmark level is 0, we leave it as is. Otherwise, we
-% increment the level to anchor the following bookmarks below the current
-% bookmark. This ensures that the bookmark structure is correct even if the
-% document either does not use or provides structuring commands (\eg,
-% missing |\section| in a \textsf{scrlttr2} document).
+% If the current bookmark level is 0, leave it as is. Otherwise, increment the
+% level to anchor the following bookmarks below the current bookmark. This keeps
+% the bookmark structure correct even if the document neither provides nor uses
+% structuring commands, \eg, a \textsf{scrlttr2} document without |\section|.
 %    \begin{macrocode}
     \ifx\Hy@currentbookmarklevel\@undefined\else
       \ifnum\Hy@currentbookmarklevel>0
-        \@tempcnta\Hy@currentbookmarklevel
-        \advance\@tempcnta by 1 %
-        \xdef\Hy@currentbookmarklevel{\the\@tempcnta}%
+        \rebuttal@incbookmarklevel
       \fi
     \fi
     \ifx\currentpdfbookmark\@undefined\else
       \currentpdfbookmark{#1}{rebuttalcomment.\therebuttalcomment}%
     \fi
     \noindent\bgroup\rebuttal@titlefont\strut
-    \pgfkeys{/rebuttal/title/format=#1}\egroup%
+    \pgfkeys{/rebuttal/title/format=#1}\egroup
   }%
-  \par%
+  \par
   \@afterheading
   \vspace*{\medskipamount}%
   \begin{trivlist}%
-  \let\rebuttal@oldmakelabel\makelabel%
+  \let\rebuttal@oldmakelabel\makelabel
   \renewcommand\makelabel[1]{\llap{\rebuttal@commentlabelfont ##1}}%
   \labelwidth\z@
-  %\setlength{\parsep}{\smallskipamount}%
-  %\setlength{\labelsep}{1pt}%
-  %\setlength{\topsep}{\z@}%
-  %\setlength{\partopsep}{\bigskipamount}
   \let\comment\@undefined
   \let\endcomment\@undefined
   \newenvironment{comment}{%
     \rebuttal@incbookmarklevel
     \apptocmd\@item{%
       \ifx\currentpdfbookmark\@undefined\else
-        \currentpdfbookmark{Comment~\therebuttalcomment}{rebuttalcomment.\therebuttalcomment}%
+        \currentpdfbookmark
+          {\rebuttal@commentbookmark~\therebuttalcomment}%
+          {rebuttalcomment.\therebuttalcomment}%
       \fi
     }{%
-      \PackageInfo{rebuttal}{The \string\@item\space command was patched to
-        provide comment bookmarks.}%
+      \PackageInfo{rebuttal}{The \string\@item\space command was
+        patched to provide comment bookmarks.}%
     }{%
-      \PackageWarning{rebuttal}{Failed to patch the \string\@item\space command.
-        Bookmarks may not be displayed correctly.}%
+      \PackageWarning{rebuttal}{Failed to patch the \string\@item\space
+        command. Bookmarks may not be displayed correctly.}%
     }%
 %    \end{macrocode}
-% Do not allow to place answers within a comment by undefining the answer
-% environment
+% Prevent answers from being placed within a comment by undefining the |answer|
+% environment.
 %    \begin{macrocode}
     \let\answer\@undefined
     \let\endanswer\@undefined
     \stepcounter{rebuttalcomments}%
-    \refstepcounter{rebuttalcomment}
-    %\settowidth{\labelwidth}{\rebuttal@commentlabelfont #1}
-    %\addtolength{\labelwidth}{1em}
+    \refstepcounter{rebuttalcomment}%
+    % TODO Add tooltips to comment labels.
     \item
     [%
-      \therebuttalcomment%
+      \therebuttalcomment
     ]%
     \begingroup
     \rebuttal@commentfont
@@ -657,29 +755,40 @@
   }{%
     \endgroup
     \rebuttal@decbookmarklevel
-  }
+  }%
+%    \end{macrocode}
+% \changes{v0.2.0}{2026-09-28}{Fixed \meta{answer/label/font} option being
+% ignored}
+% The label of an answer is placed in the left margin. Therefore, the label
+% separation is removed while the label is typeset and restored afterwards.
+%    \begin{macrocode}
   \newenvironment{answer}{%
     \par\medskip
     \@afterheading
     \rebuttal@incbookmarklevel
-    \begin{trivlist}
+    \begin{trivlist}%
       \ifx\belowpdfbookmark\@undefined\else
-        \belowpdfbookmark{Anwser to~\therebuttalcomment}{rebuttalanswer.\therebuttalanswer}%
+        \belowpdfbookmark{\rebuttal@answerbookmark~\therebuttalcomment}%
+          {rebuttalanswer.\therebuttalanswer}%
       \fi
-      \normalfont\rebuttal@answerfont%
-      \rebuttal@labelsep\labelsep%
-      \newcommand\rebuttal@makelabel[1]{\rebuttal@answerlabelfont ####1\enspace}
-      \renewcommand\makelabel[1]{\rebuttal@makelabel{####1}}%
+      \normalfont\rebuttal@answerfont
+      \rebuttal@labelsep\labelsep
       \labelsep\z@
       \labelwidth\z@
-      \let\makelabel\empty
-      %\settowidth\labelwidth{\rebuttal@makelabel{\rebuttal@answerlabel}}%
+      \let\makelabel\@firstofone
       \item
         [%
           \ifx\pdftooltip\@undefined
-            \llap{\rebuttal@answerlabel\enspace}%
+            \llap{%
+              \rebuttal@answerlabelfont\rebuttal@answerlabel\enspace
+            }%
           \else
-            \llap{\pdftooltip{\rebuttal@answerlabel}{Reply}\enspace}%
+            \llap{%
+              \pdftooltip
+                {\rebuttal@answerlabelfont\rebuttal@answerlabel}%
+                {\rebuttal@answertooltip}%
+              \enspace
+            }%
           \fi
         ]%
         \begingroup
@@ -689,7 +798,7 @@
     \endgroup
     \end{trivlist}%
     \rebuttal@decbookmarklevel
-  }
+  }%
 }{%
   \end{trivlist}%
   \rebuttal@decbookmarklevel
@@ -710,37 +819,50 @@
 }
 %    \end{macrocode}
 % \end{environment}
-
-% Support \textsf{cleveref}.
+%
+% Provide the counter names for \textsf{cleveref}.
 %    \begin{macrocode}
 \AtEndPreamble{%
   \@ifpackageloaded{cleveref}{%
-    \crefname{rebuttalcomment}{comment}{comments}
-    \crefname{rebuttalanswer}{answer}{answers}
-    \Crefname{rebuttalcomment}{Comment}{Comments}
-    \Crefname{rebuttalanswer}{Answer}{Answers}
-  }{}
+    \crefname{rebuttalcomment}{comment}{comments}%
+    \crefname{rebuttalanswer}{answer}{answers}%
+    \Crefname{rebuttalcomment}{Comment}{Comments}%
+    \Crefname{rebuttalanswer}{Answer}{Answers}%
+  }{}%
 }
-
+%    \end{macrocode}
+%
+% \begin{macro}{\rebuttaltotalcomments}
+% \begin{macro}{\rebuttaltotalchanges}
+% Placeholders for the total number of comments and changes until the values
+% are read from the auxiliary file.
+%    \begin{macrocode}
 \newcommand\rebuttaltotalcomments{%
   \textbf{??}%
-  \@latex@warning{Reference \string\rebuttaltotalcomments\space on page \thepage\space undefined}%
+  \@latex@warning{Reference \string\rebuttaltotalcomments\space on page
+    \thepage\space undefined}%
 }
 
 \newcommand\rebuttaltotalchanges{%
   \textbf{??}%
-  \@latex@warning{Reference \string\rebuttaltotalchanges\space on page \thepage\space undefined}%
+  \@latex@warning{Reference \string\rebuttaltotalchanges\space on page
+    \thepage\space undefined}%
 }
-
+%    \end{macrocode}
+% Write the totals to the auxiliary file.
+%    \begin{macrocode}
 \AtEndDocument{%
   \immediate\write\@auxout{%
     \gdef\string\rebuttaltotalcomments{\arabic{rebuttalcomments}}%
     \gdef\string\rebuttaltotalchanges{\arabic{rebuttalchanges}}%
-  }
+  }%
 }
 %    \end{macrocode}
-% \begin{macro}{\rebuttalset}\marg{options}
-% Allows to update package options.
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\rebuttalset}
+% Updates the package options given as a key-value list \marg{options}.
 %    \begin{macrocode}
 \newcommand\rebuttalset[1]{%
   \pgfqkeys{/rebuttal}{#1}%
