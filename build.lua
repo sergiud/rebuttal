@@ -44,7 +44,7 @@ uploadconfig = {
     bugtracker = 'https://github.com/sergiud/rebuttal/issues',
     update = true,
     uploader = 'Sergiu Deitsch',
-    version = '0.1.1',
+    version = '0.2.0',
     topic = {
         'journalpub',
         'letter',

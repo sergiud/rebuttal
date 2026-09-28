@@ -16,26 +16,55 @@
 % \fi
 %
 % \iffalse
-%<package>\NeedsTeXFormat{LaTeX2e}
-%<package>\ProvidesPackage{rebuttal}
-%<package>   [2025-12-16 v0.2.0 Markup for rebuttal letters]
-%
 %<*driver>
 \ProvidesFile{rebuttal.dtx}
+%</driver>
+%<package>\NeedsTeXFormat{LaTeX2e}
+%<package>\ProvidesPackage{rebuttal}
+%<*package>
+    [2026-09-28 v0.2.0 Markup for rebuttal letters]
+%</package>
+%
+%<*driver>
+\begingroup
+  \input docstrip.tex
+  \batchinput{rebuttal.ins}
+\endgroup
 
 \documentclass[american,reportchangedates,svgnames]{ltxdoc}
 \usepackage[abbreviations]{foreign}
-\usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{babel}
 \usepackage{microtype}
 \usepackage[all]{nowidow}
-\usepackage{rebuttal}
-\usepackage{hyperref}
+\usepackage{rebuttal}[2026-09-28]
+\usepackage{hypdoc}
+\usepackage{cleveref}
+
+\providecommand\TikZ{Ti\emph{k}Z}
+
+\makeatletter
+\newcommand*\FormatISODate[1]{\expandafter\FormatISODate@#1\@nil}
+\def\FormatISODate@#1-#2-#3\@nil{%
+  \ifcase\number#2\relax
+  \or January\or February\or March\or April\or May\or June\or July%
+  \or August\or September\or October\or November\or December%
+  \fi
+  \space\number#3, #1%
+}
+\makeatother
 
 \EnableCrossrefs
 \CodelineIndex
 \RecordChanges
+
+\setcounter{IndexColumns}{2}
+\setlength\maxbalancingoverflow{0pt}
+\makeatletter
+\g@addto@macro\IndexParms{\parskip 0pt plus 1pt minus .5pt\relax}
+\makeatother
+\setlength\IndexMin{.25\textheight}
+\setlength\GlossaryMin{.25\textheight}
 
 \hypersetup{%
   pdfauthor = {Sergiu Deitsch},
@@ -50,7 +79,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{0}
+% \CheckSum{605}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -71,7 +100,7 @@
 %
 % \changes{v0.1.0}{2024-11-01}{Initial release}
 % \changes{v0.1.1}{2024-11-14}{Improved documentation}
-% \changes{v0.2.0}{2025-12-16}{Improved documentation}
+% \changes{v0.2.0}{2026-09-28}{Improved documentation}
 % \changes{v0.2.0}{2026-09-28}{Do not load \textsf{hyperref} implicitly}
 % \changes{v0.2.0}{2026-09-28}{Fixed misspelled answer bookmarks}
 % \changes{v0.2.0}{2026-09-28}{Added options for customizing bookmark and
@@ -80,24 +109,36 @@
 % \changes{v0.2.0}{2026-09-28}{Do not underline emphasized text}
 % \changes{v0.2.0}{2026-09-28}{Made the \meta{label} option optional}
 %
-% \GetFileInfo{rebuttal.sty}
+% \GetFileInfo{rebuttal.dtx}
 %
-% \DoNotIndex{\newcommand,\newenvironment,\def,\the,\let,\if,\fi,\else,\\}
-% \DoNotIndex{\newif,\ifx,\ifcase,\or}
-% \DoNotIndex{\begingroup,\endgroup}
+% \DoNotIndex{\newcommand,\newenvironment,\renewcommand,\def,\edef,\xdef,\gdef}
+% \DoNotIndex{\the,\let,\if,\fi,\else,\\,\relax,\par,\z@,\@undefined,\@empty}
+% \DoNotIndex{\newif,\ifx,\ifcase,\ifnum,\or,\csname,\endcsname,\expandafter}
+% \DoNotIndex{\begingroup,\endgroup,\bgroup,\egroup,\advance,\@tempcnta}
+% \DoNotIndex{\pgfkeys,\pgfqkeys,\pgfkeysalso,\pgfkeysvalueof,\pgfkeysgetvalue}
+% \DoNotIndex{\tikzset,\color,\colorlet,\textcolor,\providecolor}
+% \DoNotIndex{\RequirePackage,\AtEndPreamble,\AtEndDocument,\@ifpackageloaded}
+% \DoNotIndex{\newcounter,\stepcounter,\refstepcounter,\arabic,\label,\ref}
+% \DoNotIndex{\normalfont,\bfseries,\mdseries,\itshape,\rmfamily,\tiny}
+% \DoNotIndex{\enspace,\llap,\noindent,\strut,\item,\medskip,\hspace}
+% \DoNotIndex{\setlength,\addtolength,\settowidth,\newlength,\newdimen}
+% \DoNotIndex{\labelsep,\labelwidth,\marginparwidth,\makelabel}
+% \DoNotIndex{\vspace,\addvspace,\bigskipamount,\medskipamount}
+% \DoNotIndex{\foreach,\fill,\cycle,\MakeUppercase,\allowbreak,\string,\space}
 %
-% \title{The \href{https://github.com/sergiud/rebuttal}{\textsf{rebuttal}} package%
-%   \thanks{This document corresponds to \textsf{rebuttal}~\fileversion, dated \filedate.}}
-% \author{Sergiu % Deitsch\\%
+% \title{The \href{https://github.com/sergiud/rebuttal}{\textsf{rebuttal}}
+%   package\thanks{This document corresponds to \textsf{rebuttal}~\fileversion,
+%   dated \filedate.}}
+% \author{Sergiu Deitsch\\%
 %   \href{mailto:sergiu.deitsch@gmail.com}{\texttt{sergiu.deitsch@gmail.com}}%
 % }
-% \date{December 16, 2025}
+% \date{\FormatISODate\filedate}
 %
 % \maketitle
 %
 % \begin{abstract}
-% The rebuttal \LaTeX\ package provides means for writing structured journal and
-% conference paper rebuttals.
+% The \textsf{rebuttal} \LaTeX\ package provides markup for writing structured
+% rebuttals to journal and conference paper reviews.
 % \end{abstract}
 %
 % \section{Introduction}
@@ -105,13 +146,13 @@
 % A well-structured rebuttal typically consists of the following parts:
 %
 % \begin{enumerate}
-%   \item a master list of referee comments and author's replies, and
+%   \item a master list of referee comments and the authors' replies, and
 %   \item clearly highlighted changes to the manuscript that stem from
 %   reviewers' comments.
 % \end{enumerate}
 %
-% The \textsf{rebuttal} provides markup to support authors in producing the
-% above content in a consistent manner.
+% The \textsf{rebuttal} package provides markup that helps authors produce the
+% above content consistently.
 %
 % \section{Usage}
 %
@@ -123,11 +164,11 @@
 % \DescribeEnv{rebuttal}
 % \DescribeEnv{comment}
 % \DescribeEnv{answer}
-% The package defines the |rebuttal| environment that can contain several blocks
-% that refer to editor's or specific reviewers' comments and your replies to
-% referees' comments. Specifically, the environment accepts an optional
-% \oarg{title} and is expected to contain a |comment| and an |answer|
-% environment. The general layout looks as follows:
+% The package defines the |rebuttal| environment, which can contain several
+% blocks that refer to comments by the editor or by specific reviewers along
+% with the corresponding replies. The environment accepts an optional
+% \oarg{title} and is expected to contain pairs of |comment| and |answer|
+% environments. The general layout is as follows:
 %
 % \begin{verbatim}
 %   \begin{rebuttal}[Editor's Comments]
@@ -140,34 +181,48 @@
 %   \end{rebuttal}
 % \end{verbatim}
 %
+% Comments are numbered consecutively within each |rebuttal| environment and
+% prefixed by the number of the environment. An |answer| cannot be nested within
+% a |comment|. The |comment| and |answer| environments are defined only within
+% |rebuttal|. Therefore, they do not clash with the |comment| environment
+% provided by packages such as \textsf{comment} or \textsf{verbatim}.
+%
 % \subsection{Annotating Changes to the Manuscript}
 %
 % \DescribeMacro{\addition}
 % \DescribeMacro{\deletion}
 % \DescribeMacro{\change}
-% Within the manuscript, three main commands can be used to denote additions,
-% deletions, or changes. The corresponding commands are
-% |\addition|\oarg{options}\marg{text}, |\deletion|\oarg{options}\marg{text},
-% and |\change|\oarg{options}\marg{old text}\marg{new text}. While |\addition|
-% and |\deletion| require a single argument. |\change| expects two arguments,
-% where the first one denotes the changed text, and the second one the new text.
+% Within the manuscript, three commands denote additions, deletions, and
+% changes:
+% \begin{quote}
+%   |\addition|\oarg{options}\marg{text}\\
+%   |\deletion|\oarg{options}\marg{text}\\
+%   |\change|\oarg{options}\marg{old text}\marg{new text}
+% \end{quote}
+% While |\addition| and |\deletion| expect a single argument, |\change| expects
+% two arguments. The first one denotes the original text and the second one the
+% new text.
 %
-% The optional \meta{label} option assigns a label for referencing the
-% modification. Additionally, the \meta{ref}
-% option back references the original reviewer comment and may specify multiple
-% labels, \eg
+% Each annotation is numbered and labeled in the margin. The optional
+% \meta{label} option assigns a label to the annotation for referencing it, \eg,
+% from within an answer. The \meta{ref} option refers back to the original
+% reviewer comment and may specify multiple labels, \eg,
 %
 % \begin{verbatim}
 %   \addition[label=a:new,ref={c:c1,c:c2}]{new text}.
 % \end{verbatim}
+%
+% If the references do not fit into a single line in the margin, the
+% \meta{break} option places them below the annotation number.
+% \Cref{sec:options} lists the remaining options.
 %
 % \subsection{Annotating Multiple Paragraphs}
 %
 % \DescribeEnv{additionenv}
 % \DescribeEnv{changeenv}
 % \DescribeEnv{deletionenv}
-% Additionally to the provided markup commands, the package also defines
-% equivalent environments for annotating multiple paragraphs:
+% In addition to the markup commands, the package defines equivalent
+% environments for annotating multiple paragraphs:
 %
 % \begin{verbatim}
 %   \begin{additionenv}[label=a:par,ref=c:missing-motivations]
@@ -188,34 +243,107 @@
 %
 % \subsection{Disabling Annotations}
 %
-% \DescribeMacro{\rebuttalset}
 % Once a manuscript has been accepted for publication, rebuttal annotations are
 % no longer necessary and only the accepted changes should be typeset.
-% \textsf{rebuttal} allows to disable annotations using the |\rebuttalset|
-% command by disabling the \meta{marked} option, \ie,
+% To this end, annotations can be disabled by setting the \meta{marked} option
+% to |false| using the |\rebuttalset| command:
 % \begin{verbatim}
 %   \rebuttalset{marked=false}
 % \end{verbatim}
-% which will disable the annotiations in the current group.
+% This disables annotations in the current group.
 %
-% \subsection{Customizing Bookmarks and Answer Labels}
+% \subsection{Cross-Referencing}
 %
-% The bookmark texts of comments and answers can be changed using the
-% \meta{comment/bookmark} and \meta{answer/bookmark} options, which default to
-% |Comment| and |Answer to|, respectively. The \meta{answer/tooltip} option
-% sets the tooltip of the answer label, which defaults to |Reply|. The
-% \meta{answer/label} option replaces the answer label and the
-% \meta{answer/label/font} option sets its font. The style of the default
-% triangle label can be changed using the \meta{answer/triangle/.style}
-% option, \eg,
+% Comments, answers, and annotations can be referenced using |\ref| and
+% |\label|. If \textsf{cleveref} is loaded, the package also provides the
+% corresponding names for |\cref| and |\Cref|.
+%
+% \DescribeMacro{\rebuttaltotalcomments}
+% \DescribeMacro{\rebuttaltotalchanges}
+% The total number of comments and annotations in the document is available
+% through |\rebuttaltotalcomments| and |\rebuttaltotalchanges|, respectively.
+% Similar to references, the values are written to the auxiliary file and
+% therefore require an additional \LaTeX\ run.
+%
+% \subsection{Options}\label{sec:options}
+%
+% \DescribeMacro{\rebuttalset}
+% The appearance and behavior of the package can be customized using the
+% |\rebuttalset|\marg{options} command. Its argument is a comma-separated list
+% of \meta{key}|=|\meta{value} pairs. Options of individual annotations can be
+% additionally passed to |\addition|, |\deletion|, |\change|, and their
+% environment counterparts. The following options are available:
+%
+% \begin{description}
+%   \item[\texttt{marked}=\meta{boolean}] Enables or disables annotations.
+%     Defaults to |true|.
+%   \item[\texttt{no hyperlinks}=\meta{boolean}] Disables hyperlinks within
+%     |rebuttal| environments and the margin references of annotations.
+%     Requires \textsf{hyperref}. Defaults to |false|.
+%   \item[\texttt{execute on begin}=\meta{code}] Code executed at the beginning
+%     of each |rebuttal| environment.
+%   \item[\texttt{execute on end}=\meta{code}] Code executed at the end of each
+%     |rebuttal| environment.
+%   \item[\texttt{title/font}=\meta{font}] Font of the |rebuttal| title.
+%     Defaults to |\normalfont|\allowbreak|\bfseries|.
+%   \item[\texttt{title/format/.code}=\marg{code}] Formats the title passed as
+%     |#1|. Defaults to |#1:|.
+%   \item[\texttt{comment/font}=\meta{font}] Font of comments. Defaults to
+%     |\normalfont|\allowbreak|\itshape|.
+%   \item[\texttt{comment/label/font}=\meta{font}] Font of the numbers of
+%     comments. Defaults to
+%     |\normalfont|\allowbreak|\rmfamily|\allowbreak|\bfseries|.
+%   \item[\texttt{comment/bookmark}=\meta{text}] Bookmark text of comments
+%     followed by the comment number. Defaults to |Comment|.
+%   \item[\texttt{answer/font}=\meta{font}] Font of answers. Defaults to
+%     |\normalfont|.
+%   \item[\texttt{answer/label}=\meta{code}] Label placed in the left margin of
+%     answers. Defaults to a gray triangle.
+%   \item[\texttt{answer/label/font}=\meta{font}] Font of the answer label.
+%     Defaults to |\normalfont|.
+%   \item[\texttt{answer/triangle/.style}=\marg{style}] \TikZ\ style of the
+%     default answer label. Defaults to |black!65|.
+%   \item[\texttt{answer/bookmark}=\meta{text}] Bookmark text of answers
+%     followed by the comment number. Defaults to |Answer to|.
+%   \item[\texttt{answer/tooltip}=\meta{text}] Tooltip of the answer label.
+%     Requires \textsf{hyperref}. Defaults to |Reply|.
+%   \item[\texttt{reference/font}=\meta{font}] Font of annotation labels in the
+%     margin. Defaults to |\tiny|\allowbreak|\bfseries|.
+%   \item[\texttt{change/from command}=\meta{command}] Command applied to the
+%     old text of a change. Defaults to |\sout|.
+%   \item[\texttt{change/from color}=\meta{color}] Color of the old text of a
+%     change. Defaults to |DodgerBlue3!50|.
+%   \item[\texttt{deletion/command}=\meta{command}] Command applied to deleted
+%     text. Defaults to |\xout|.
+% \end{description}
+%
+% The following options apply to annotations. Passed to |\rebuttalset|, they
+% need to be prefixed by |addition/|, |deletion/|, or |change/|, \eg,
 % \begin{verbatim}
-%   \rebuttalset{answer/bookmark=Reply to,answer/triangle/.style={red}}
+%   \rebuttalset{addition/color=Green}
 % \end{verbatim}
+%
+% \begin{description}
+%   \item[\texttt{label}=\meta{label}] Label of the annotation.
+%   \item[\texttt{ref}=\meta{labels}] Comma-separated labels of the comments
+%     the annotation stems from.
+%   \item[\texttt{break}] Places the references in the margin below the
+%     annotation number.
+%   \item[\texttt{color}=\meta{color}] Color of the annotation. Defaults to
+%     |RedViolet| for additions, |Firebrick3| for deletions, and |DodgerBlue3|
+%     for changes.
+%   \item[\texttt{font}=\meta{font}] Font of the annotated text. Defaults to
+%     |\normalfont|\allowbreak|\mdseries|.
+% \end{description}
+%
+% \DescribeMacro{\rebuttalanswerlabel}
+% The current answer label can be typeset using |\rebuttalanswerlabel|, \eg, to
+% explain the markup in the introduction of the rebuttal letter.
 %
 % \section{Known Limitations}
 %
 % Rebuttal markup cannot be used within floating environments such as |figure|
-% and |table|, and the |\caption| command.
+% and |table|, or within the argument of the |\caption| command.
 %
 % \MaybeStop{\PrintChanges\PrintIndex}
 %
@@ -317,7 +445,7 @@
 %
 % \changes{v0.2.0}{2026-09-28}{Fixed \meta{answer/label} option being ignored}
 % \changes{v0.2.0}{2026-09-28}{Added \meta{answer/triangle} option}
-% Global options and their defaults.
+% Global options and their defaults as described in \cref{sec:options}.
 %    \begin{macrocode}
 \pgfkeys{
   /rebuttal/.is family,
@@ -871,19 +999,23 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \subsection{Example}
+% \subsection{Examples}
 %
+% The following examples demonstrate the package in two document classes. Both
+% include the same rebuttal content, which is provided in a separate file.
+%
+% The first example typesets a cover letter using \textsf{scrlttr2} followed by
+% the rebuttal.
 %    \begin{macrocode}
 %<*example1>
 \documentclass[american,version=last,fromphone,fromemail]{scrlttr2}
 %    \end{macrocode}
-% Loading \textsf{xcolor} explicitly is not necessary. This line is solely used
-% to ensure that the \textsf{rebuttal} package does not rely on specific
-% \textsf{xcolor} options.
+% Loading \textsf{xcolor} explicitly is not necessary. This line merely ensures
+% that the \textsf{rebuttal} package does not rely on specific \textsf{xcolor}
+% options.
 %    \begin{macrocode}
 \usepackage[]{xcolor}
 \usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
 \usepackage[babel]{csquotes}
 \usepackage{babel}
 \usepackage{graphicx}
@@ -918,31 +1050,31 @@
 
 \begin{document}
 
-\setkomavar{subject}{Manuscript: Extended Field of View in C-Arm Computed
-  Tomography for Weight-Bearing Imaging}
+\setkomavar{subject}{Manuscript: Extended Field of View in C-Arm
+  Computed Tomography for Weight-Bearing Imaging}
 
 \begin{letter}{Medical Physics}
 
 \opening{Dear Prof. Jones, Dear Prof. Taylor,}
 
-We thank you for considering our submission as a research article for Medical
-Physics. We also thank the reviewers for the thoughtful comments. We have
-carefully revised the document and prepared a point-by-point response to the
-reviewer’s comments.
+We thank you for considering our submission as a research article for
+Medical Physics. We also thank the reviewers for their thoughtful
+comments. We have carefully revised the manuscript and prepared a
+point-by-point response to the reviewers’ comments.
 
 The major changes to the paper are:
 \begin{itemize}
   \item Clarification of the medical impact
-  \item An extension of the evaluation and discussion to 3D Cone Beam CT and
-    off-center positioning of the object
+  \item An extension of the evaluation and discussion to 3D cone-beam CT
+    and off-center positioning of the object
   \item Inclusion of more substantive figure captions
 \end{itemize}
 
-Below, you will find the reviewers’ comments in blue, our response in normal
-face and additions to the manuscript in quotes and \enquote{italic face.} Note
-that we omitted footnotes and references in the quotations.
+Below, you will find the reviewers’ comments in italic face and our
+responses in normal face. Changes to the manuscript are highlighted in
+color and labeled in the margin.
 
-We are looking forward to hearing from you.
+We look forward to hearing from you.
 
 \closing{With kind regards,}
 
@@ -952,6 +1084,7 @@ We are looking forward to hearing from you.
 %</example1>
 %    \end{macrocode}
 %
+% The second example typesets the rebuttal within a regular \textsf{article}.
 %    \begin{macrocode}
 %<*example2>
 \documentclass{article}
@@ -967,24 +1100,27 @@ We are looking forward to hearing from you.
 %</example2>
 %    \end{macrocode}
 %
+% The rebuttal content shared by both examples. It contains comments, answers,
+% and annotations of all types.
 %    \begin{macrocode}
 %<*rebuttal-comments>
 
-The following pages contain a list of editor's and reviewers' comments followed
-by our replies. The comments are sequentially numbered and associated either
-with the editor or the corresponding reviewer. The replies may contain
-references to changes in the original manuscript which are identified by a label
-consisting of a running number and followed by the label of the original comment
-in parentheses. The label back references the original reviewer comment within
-the manuscript. For instance, the reference \textbf{C2~(1.3)}, which is typeset
-in the manuscript margin, refers to the second change stemming from the third
-comment of the first reviewer.
+The following pages contain the editor's and reviewers' comments, each
+followed by our reply. The comments are numbered sequentially and
+associated with either the editor or the corresponding reviewer. The
+replies may reference changes in the revised manuscript. Each change is
+identified by a label that consists of a running number followed by the
+label of the original comment in parentheses. This label refers back to
+the original reviewer comment. For instance, the reference
+\textbf{C2~(1.3)}, typeset in the manuscript margin, refers to the
+second change resulting from the third comment of the first reviewer.
 
 \begin{rebuttal}[Editor's Comments]
   \begin{comment}
-  The topic of this manuscript is of interest. We concur with the summary review
-  of the associate editor and the reviews of the referees. The authors should
-  thoroughly address all of the comments, below, in a revised manuscript.
+  The topic of this manuscript is of interest. We concur with the
+  summary review of the associate editor and the reviews of the
+  referees. The authors should thoroughly address all of the comments
+  below in a revised manuscript.
   \end{comment}
 
 \end{rebuttal}
@@ -992,14 +1128,14 @@ comment of the first reviewer.
 \begin{rebuttal}[Specific Comments]
   \begin{comment}
   \label{c:specific}
-  You need to include figure captions that make your figures intelligible.
-  See~\cref{a:foo} and \cref{c:foo2}.
+  You need to include figure captions that make your figures
+  intelligible. See~\cref{a:foo} and \cref{ch:foo2}.
   \end{comment}
 
   \begin{answer}
-    The reviewer is right. We have reworked the figure captions to make the
-    figures more independent of the text. Furthermore, check if lists are
-    typeset correctly:
+    The reviewer is right. We have reworked the figure captions to make
+    the figures more independent of the text. Furthermore, check whether
+    lists are typeset correctly:
     \begin{itemize}
       \item One
       \item Two
@@ -1012,21 +1148,22 @@ comment of the first reviewer.
 
   \begin{comment}
     \label{c:c2}
-    Are you going to pay for color in the print article? If not, the lines are
-    not intelligible in Figures 2, 5, 11. In addition to color coding for the
-    digital version, you could make lines with distinct patterns (dots, dashes,
-    etc.) so they are distinct in monochrome presentations.
+    Are you going to pay for color in the print article? If not, the
+    lines are not intelligible in Figures 2, 5, and 11. In addition to
+    color coding for the digital version, you could make lines with
+    distinct patterns (dots, dashes, etc.) so they are distinct in
+    monochrome presentations.
   \end{comment}
 
   \begin{answer}
-    We agree with this point and we are sorry that we missed this in the first
-    version of the article. The article will appear as an online only version
-    and is part of the special issue associated with this year’s CT Meeting
-    conference. Thus there will be no additional cost associated with color
-    figures. Nonetheless, we agree that all figures need to be correct in
-    grey-scale as some readers might print the article. According to the
-    reviewer’s comment, we have adjusted the figures by using different patterns
-    and gray levels.
+    We agree with this point and are sorry that we missed this in the
+    first version of the article. The article will appear as an
+    online-only version and is part of the special issue associated with
+    this year’s CT Meeting. Thus, there will be no additional cost
+    associated with color figures. Nonetheless, we agree that all
+    figures need to be legible in grayscale because some readers might
+    print the article. Following the reviewer’s suggestion, we have
+    adjusted the figures using different line patterns and gray levels.
 
     (Refer also to \cref{c:specific} for more information.)
   \end{answer}
@@ -1034,15 +1171,15 @@ comment of the first reviewer.
 
 \lipsum[1] \addition[label=a:foo,ref=c:specific]{\lipsum[2]} \lipsum[3]
 
-\lipsum[4] \deletion[label=a:foo1,ref=c:c2]{An unintended addition.}
-and a \change[label=c:foo2,ref=c:c2]{from}{to} change. And another addition
+\lipsum[4] \deletion[label=d:foo1,ref=c:c2]{An unintended addition.} and
+a \change[label=ch:foo2,ref=c:c2]{from}{to} change. And another addition
 \addition[label=a:foo3,ref=c:c2]{here}.
 Also \addition[label=a:foo4,ref=c:c2]{here}.
 Maybe \addition[label=a:foo5,ref=c:c2]{here}.
 Additionally \addition[label=a:foo6,ref=c:c2]{here}.
 Additionally \addition[label=a:foo7,ref=c:c2]{here}.
 
-\begin{additionenv}[label=d:par,ref=c:c2]
+\begin{additionenv}[label=a:par,ref=c:c2]
   \begin{itemize}
     \item \lipsum[1]
   \end{itemize}
@@ -1053,14 +1190,14 @@ Additional notes:
 \begin{itemize}
   \item Multiple source references can be
     \addition[label=a:foo8,ref={c:specific,c:c2}]{specified}.
-  \item If the references do not fit into a single line in the margin, you may
-    force a \addition[label=a:break,ref={c:specific,c:c2},break]{break}.
+  \item If the references do not fit into a single line in the margin,
+    you may force a
+    \addition[label=a:break,ref={c:specific,c:c2},break]{break}.
 \end{itemize}
 %</rebuttal-comments>
 %    \end{macrocode}
 %
 % \Finale
-
-% \endinput
+\endinput
 
 % vim: ft=tex

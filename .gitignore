@@ -11,6 +11,9 @@
 *.up[ab]
 /*.pdf
 /01-example.tex
+/01-scrlttr2.tex
+/02-article.tex
+/rebuttal.tex
 /build/
 /rebuttal-ctan.curlopt
 /rebuttal-ctan.zip
