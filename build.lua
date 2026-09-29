@@ -1,3 +1,6 @@
+-- SPDX-FileCopyrightText: 2026 Sergiu Deitsch
+-- SPDX-License-Identifier: LPPL-1.3c+
+
 module = 'rebuttal'
 
 sourcefiledir = '.'

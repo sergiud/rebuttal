@@ -1,0 +1,17 @@
+# SPDX-FileCopyrightText: 2026 Sergiu Deitsch
+# SPDX-License-Identifier: LPPL-1.3c+
+
+name: Lint
+
+on: [push, pull_request]
+
+jobs:
+  reuse:
+    name: REUSE compliance
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check REUSE compliance
+        uses: fsfe/reuse-action@v5

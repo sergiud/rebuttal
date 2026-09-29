@@ -1,3 +1,8 @@
+<!--
+SPDX-FileCopyrightText: 2026 Sergiu Deitsch
+SPDX-License-Identifier: LPPL-1.3c+
+-->
+
 # Structured Rebuttals in LaTeX
 
 [![TeXLive](https://github.com/sergiud/rebuttal/actions/workflows/texlive.yml/badge.svg)](https://github.com/sergiud/rebuttal/actions/workflows/texlive.yml)
