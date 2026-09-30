@@ -37,6 +37,7 @@
 \usepackage{babel}
 \usepackage{microtype}
 \usepackage[all]{nowidow}
+\usepackage{siunitx}
 \usepackage{rebuttal}[2026-09-28]
 \usepackage{hypdoc}
 \usepackage{cleveref}
@@ -79,7 +80,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{875}
+% \CheckSum{877}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -1286,6 +1287,12 @@
 \usepackage{microtype}
 \usepackage{lipsum}
 \usepackage{rebuttal}
+%    \end{macrocode}
+% The margin notes of \textsf{todonotes}, which label the changes, require a
+% margin of at least \SI{2}{cm}. \textsf{scrlttr2} provides a narrower one by
+% default.
+%    \begin{macrocode}
+\setlength\marginparwidth{2cm}
 %    \end{macrocode}
 % Given the \texttt{american} option, \textsf{varioref} adds its language
 % strings to \cs{extrasenglish}, which \textsf{babel} does not define in this
