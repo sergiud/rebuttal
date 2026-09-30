@@ -80,7 +80,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{877}
+% \CheckSum{893}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -1091,6 +1091,15 @@
   \begingroup
   \par
   \addvspace{\bigskipamount}%
+%    \end{macrocode}
+% \changes{v0.2.0}{2026-10-01}{Fixed bookmark levels following a rebuttal}
+% Remember the bookmark level to restore it at the end of the environment. The
+% level is not necessarily incremented at the beginning, \eg, if the title is
+% omitted.
+%    \begin{macrocode}
+  \ifx\Hy@currentbookmarklevel\@undefined\else
+    \let\rebuttal@bookmarklevel\Hy@currentbookmarklevel
+  \fi
   \ifstrempty{#1}{}{%
 %    \end{macrocode}
 % If the current bookmark level is 0, leave it as is. Otherwise, increment the
@@ -1204,7 +1213,9 @@
   }%
 }{%
   \end{trivlist}%
-  \rebuttal@decbookmarklevel
+  \ifx\rebuttal@bookmarklevel\@undefined\else
+    \global\let\Hy@currentbookmarklevel\rebuttal@bookmarklevel
+  \fi
   \endgroup
   \par\addvspace{\bigskipamount}%
   \ifrebuttal@twocolumn
