@@ -80,7 +80,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{893}
+% \CheckSum{894}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -414,9 +414,15 @@
 % \textsf{pdfcomment} provides tooltips for answer labels. Since
 % \textsf{pdfcomment} requires \textsf{hyperref}, load it only if
 % \textsf{hyperref} is loaded as well.
+%
+% \changes{v0.2.0}{2026-10-01}{Avoid loading the obsolete \textsf{soulutf8}
+% package}
+% \textsf{pdfcomment} loads the obsolete \textsf{soulutf8} package unless
+% \textsf{soul} is loaded already. Therefore, load \textsf{soul} first.
 %    \begin{macrocode}
 \AtEndPreamble{%
   \@ifpackageloaded{hyperref}{%
+    \RequirePackage{soul}%
     \RequirePackage{pdfcomment}%
   }{}%
 }
