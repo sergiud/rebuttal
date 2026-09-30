@@ -1,0 +1,38 @@
+% SPDX-FileCopyrightText: 2026 Sergiu Deitsch
+% SPDX-License-Identifier: LPPL-1.3c+
+
+\input{regression-test}
+
+\documentclass{article}
+\usepackage{rebuttal}
+\usepackage{hyperref}
+\usepackage{bookmark}
+
+\makeatletter
+\bookmarksetup{%
+  addtohook={%
+    \TYPE{Bookmark: \bookmark@dest\space(level \bookmark@level)}%
+  },
+}
+\makeatother
+
+\begin{document}
+\START
+
+% The bookmark package tracks the bookmark level on its own. Nonetheless, the
+% bookmarks of the rebuttal must be nested the same way as with hyperref alone.
+\subpdfbookmark{Response}{response}
+
+\begin{rebuttal}[Reviewer]
+  \begin{comment}
+    Comment
+  \end{comment}
+  \begin{answer}
+    Answer
+  \end{answer}
+\end{rebuttal}
+
+\section{Section}
+\subsection{Subsection}
+
+\END

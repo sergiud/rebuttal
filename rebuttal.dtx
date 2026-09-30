@@ -80,7 +80,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{930}
+% \CheckSum{952}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -477,14 +477,41 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{\rebuttal@currentbookmarklevel}
+% \begin{macro}{\rebuttal@setbookmarklevel}
+% \textsf{hyperref} and \textsf{bookmark} track the current bookmark level in
+% different macros. \textsf{bookmark} ignores the level of \textsf{hyperref}.
+% Therefore, read and set the level of \textsf{bookmark} if it is loaded, and
+% the level of \textsf{hyperref} otherwise. The macros must only be used if
+% \textsf{hyperref} is loaded, which is a prerequisite of \textsf{bookmark}.
+%    \begin{macrocode}
+\newcommand*\rebuttal@currentbookmarklevel{%
+  \ifx\BKM@currentlevel\@undefined
+    \expandafter\@firstoftwo
+  \else
+    \expandafter\@secondoftwo
+  \fi
+  {\Hy@currentbookmarklevel}{\BKM@currentlevel}%
+}
+\newcommand*\rebuttal@setbookmarklevel[1]{%
+  \ifx\BKM@currentlevel\@undefined
+    \xdef\Hy@currentbookmarklevel{#1}%
+  \else
+    \xdef\BKM@currentlevel{#1}%
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
 % \begin{macro}{\rebuttal@decbookmarklevel}
 % Decrements the current bookmark level if \textsf{hyperref} is loaded.
 %    \begin{macrocode}
 \newcommand\rebuttal@decbookmarklevel{%
   \ifx\Hy@currentbookmarklevel\@undefined\else
-    \@tempcnta\Hy@currentbookmarklevel
+    \@tempcnta\rebuttal@currentbookmarklevel\relax
     \advance\@tempcnta by -1 %
-    \xdef\Hy@currentbookmarklevel{\the\@tempcnta}%
+    \rebuttal@setbookmarklevel{\the\@tempcnta}%
   \fi
 }
 %    \end{macrocode}
@@ -495,9 +522,9 @@
 %    \begin{macrocode}
 \newcommand\rebuttal@incbookmarklevel{%
   \ifx\Hy@currentbookmarklevel\@undefined\else
-    \@tempcnta\Hy@currentbookmarklevel
+    \@tempcnta\rebuttal@currentbookmarklevel\relax
     \advance\@tempcnta by 1 %
-    \xdef\Hy@currentbookmarklevel{\the\@tempcnta}%
+    \rebuttal@setbookmarklevel{\the\@tempcnta}%
   \fi
 }
 %    \end{macrocode}
@@ -1119,6 +1146,8 @@
 % \changes{v0.1.1}{2024-11-14}{Fixed incorrect bookmark structure}
 % \changes{v0.2.0}{2026-10-01}{Fixed missing answer bookmarks of rebuttals
 % nested below other bookmarks}
+% \changes{v0.2.0}{2026-10-01}{Fixed bookmark levels if \textsf{bookmark} is
+% loaded}
 %    \begin{macrocode}
 \newenvironment{rebuttal}[1][]{%
   \rebuttal@startlinkguard
@@ -1148,7 +1177,7 @@
 % omitted.
 %    \begin{macrocode}
   \ifx\Hy@currentbookmarklevel\@undefined\else
-    \let\rebuttal@bookmarklevel\Hy@currentbookmarklevel
+    \edef\rebuttal@bookmarklevel{\rebuttal@currentbookmarklevel}%
   \fi
   \ifstrempty{#1}{}{%
 %    \end{macrocode}
@@ -1158,7 +1187,7 @@
 % structuring commands, \eg, a \textsf{scrlttr2} document without |\section|.
 %    \begin{macrocode}
     \ifx\Hy@currentbookmarklevel\@undefined\else
-      \ifnum\Hy@currentbookmarklevel>0
+      \ifnum\rebuttal@currentbookmarklevel>0
         \rebuttal@incbookmarklevel
       \fi
     \fi
@@ -1264,7 +1293,7 @@
 }{%
   \end{trivlist}%
   \ifx\rebuttal@bookmarklevel\@undefined\else
-    \global\let\Hy@currentbookmarklevel\rebuttal@bookmarklevel
+    \rebuttal@setbookmarklevel{\rebuttal@bookmarklevel}%
   \fi
   \endgroup
   \par\addvspace{\bigskipamount}%
