@@ -80,7 +80,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{894}
+% \CheckSum{903}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -419,11 +419,20 @@
 % package}
 % \textsf{pdfcomment} loads the obsolete \textsf{soulutf8} package unless
 % \textsf{soul} is loaded already. Therefore, load \textsf{soul} first.
+%
+% \changes{v0.2.0}{2026-10-01}{Avoid \textsf{hyperref} warning about the
+% driver option}
+% \textsf{pdfcomment} also passes the driver option to |\hypersetup|, which
+% causes a warning since \textsf{hyperref} has already selected the driver.
+% Therefore, ignore |\hypersetup| while loading the package.
 %    \begin{macrocode}
 \AtEndPreamble{%
   \@ifpackageloaded{hyperref}{%
     \RequirePackage{soul}%
+    \let\rebuttal@hypersetup\hypersetup
+    \let\hypersetup\@gobble
     \RequirePackage{pdfcomment}%
+    \let\hypersetup\rebuttal@hypersetup
   }{}%
 }
 %    \end{macrocode}
