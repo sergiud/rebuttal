@@ -7,3 +7,8 @@ version = 1
 path = "announcement"
 SPDX-FileCopyrightText = "2026 Sergiu Deitsch"
 SPDX-License-Identifier = "LPPL-1.3c+"
+
+[[annotations]]
+path = "testfiles/*.tlg"
+SPDX-FileCopyrightText = "2026 Sergiu Deitsch"
+SPDX-License-Identifier = "LPPL-1.3c+"

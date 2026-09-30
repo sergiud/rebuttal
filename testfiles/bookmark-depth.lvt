@@ -1,0 +1,40 @@
+% SPDX-FileCopyrightText: 2026 Sergiu Deitsch
+% SPDX-License-Identifier: LPPL-1.3c+
+
+\input{regression-test}
+
+\documentclass{article}
+\usepackage{rebuttal}
+\usepackage{hyperref}
+
+\makeatletter
+\pretocmd\@@writetorep{%
+  \TYPE{Bookmark: #3 (level #4)}%
+}{}{%
+  \TYPE{Failed to patch the bookmark writer}%
+}
+\makeatother
+
+\begin{document}
+\START
+
+% The rebuttal is nested below a bookmark of its own. Hence, the bookmarks of
+% the answers are placed below the default bookmark depth of the article
+% class. Nonetheless, all bookmarks of the rebuttal must be written.
+\subpdfbookmark{Response}{response}
+
+\begin{rebuttal}[Reviewer]
+  \begin{comment}
+    Comment
+  \end{comment}
+  \begin{answer}
+    Answer
+  \end{answer}
+\end{rebuttal}
+
+\section{Section}
+\subsection{Subsection}
+\subsubsection{Subsubsection}
+\paragraph{Paragraph}
+
+\END

@@ -80,7 +80,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{903}
+% \CheckSum{930}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -187,6 +187,14 @@
 % a |comment|. The |comment| and |answer| environments are defined only within
 % |rebuttal|. Therefore, they do not clash with the |comment| environment
 % provided by packages such as \textsf{comment} or \textsf{verbatim}.
+%
+% If \textsf{hyperref} is loaded, the package adds bookmarks for rebuttals,
+% comments, and answers. Since these are no sectioning units, their bookmarks
+% are not limited by the \texttt{tocdepth} counter, which determines the
+% default bookmark depth of \textsf{hyperref}. A bookmark depth given
+% explicitly using the \texttt{bookmarksdepth} option of \textsf{hyperref} or
+% the \texttt{depth} option of \textsf{bookmark} applies to all bookmarks,
+% though.
 %
 % \subsection{Annotating Changes to the Manuscript}
 %
@@ -490,6 +498,30 @@
     \@tempcnta\Hy@currentbookmarklevel
     \advance\@tempcnta by 1 %
     \xdef\Hy@currentbookmarklevel{\the\@tempcnta}%
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\rebuttal@unlimitbookmarksdepth}
+% \textsf{hyperref} and \textsf{bookmark} omit bookmarks nested deeper than
+% the bookmark depth. Unless given explicitly, the depth refers to the
+% \texttt{tocdepth} counter, which concerns sectioning units only. Since
+% comments and answers are no sectioning units, lift the limit for their
+% bookmarks in this case. Otherwise, nesting a rebuttal below another bookmark
+% would omit the bookmarks of the answers already at the default depth of the
+% \textsf{article} class.
+%    \begin{macrocode}
+\newcommand\rebuttal@unlimitbookmarksdepth{%
+  \ifx\Hy@bookmarksdepth\@undefined\else
+    \ifx\Hy@bookmarksdepth\c@tocdepth
+      \let\Hy@bookmarksdepth\maxdimen
+    \fi
+  \fi
+  \ifx\BKM@depth\@undefined\else
+    \ifx\BKM@depth\c@tocdepth
+      \let\BKM@depth\maxdimen
+    \fi
   \fi
 }
 %    \end{macrocode}
@@ -1085,6 +1117,8 @@
 % \begin{environment}{rebuttal}
 % The main environment, which defines the remaining ones.
 % \changes{v0.1.1}{2024-11-14}{Fixed incorrect bookmark structure}
+% \changes{v0.2.0}{2026-10-01}{Fixed missing answer bookmarks of rebuttals
+% nested below other bookmarks}
 %    \begin{macrocode}
 \newenvironment{rebuttal}[1][]{%
   \rebuttal@startlinkguard
@@ -1093,6 +1127,7 @@
 %    \begin{macrocode}
   \pgfkeysvalueof{/rebuttal/execute on begin}%
   \begingroup
+  \rebuttal@unlimitbookmarksdepth
   \refstepcounter{rebuttal}%
   \if@twocolumn
     \onecolumn

@@ -1,0 +1,40 @@
+% SPDX-FileCopyrightText: 2026 Sergiu Deitsch
+% SPDX-License-Identifier: LPPL-1.3c+
+
+\input{regression-test}
+
+\documentclass{article}
+\usepackage{rebuttal}
+\usepackage[bookmarksdepth=3]{hyperref}
+
+\makeatletter
+\pretocmd\@@writetorep{%
+  \TYPE{Bookmark: #3 (level #4)}%
+}{}{%
+  \TYPE{Failed to patch the bookmark writer}%
+}
+\makeatother
+
+\begin{document}
+\START
+
+% An explicitly given bookmark depth applies to the bookmarks of the rebuttal
+% as well. Hence, the bookmarks of the answers, which are nested below the
+% given depth, must be omitted.
+\subpdfbookmark{Response}{response}
+
+\begin{rebuttal}[Reviewer]
+  \begin{comment}
+    Comment
+  \end{comment}
+  \begin{answer}
+    Answer
+  \end{answer}
+\end{rebuttal}
+
+\section{Section}
+\subsection{Subsection}
+\subsubsection{Subsubsection}
+\paragraph{Paragraph}
+
+\END
