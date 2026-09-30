@@ -743,11 +743,15 @@
 %    \end{macrocode}
 % \changes{v0.2.0}{2026-09-28}{Do not redirect subsequent labels to
 % annotations}
+% \changes{v0.2.0}{2026-10-01}{Do not redirect table of contents entries and
+% bookmarks of annotated headings}
 % The annotation must not become the target of subsequent labels, \eg, of a
-% |\label| following an annotated |\caption|. Therefore, the counter is
-% incremented within a group. Since \textsf{hyperref} sets the link target
-% globally, the previous target is restored after the label of the annotation
-% has been defined.
+% |\label| following an annotated |\caption|, or of the table of contents
+% entry of an annotated heading. Therefore, the counter is incremented within a
+% group. Since \textsf{hyperref} sets the link target globally, the previous
+% target is restored after the annotation has been typeset. The margin note
+% also sets the link target for its list entry, so the target can only be
+% restored after the note has been placed.
 %    \begin{macrocode}
         \let\rebuttal@currentHref\@currentHref
         \refstepcounter{rebuttal#1}%
@@ -762,9 +766,6 @@
         \pgfkeysgetvalue{/rebuttal/#1/label}\rebuttal@label
         \ifx\rebuttal@label\@empty\else
           \label{\rebuttal@label}%
-        \fi
-        \ifx\rebuttal@currentHref\@undefined\else
-          \global\let\@currentHref\rebuttal@currentHref
         \fi
         \colorlet{Changes@Color}{rebuttal@#1}%
         \begingroup
@@ -782,6 +783,9 @@
         }{%
           \rebuttal@inlinereference{#1}%
         }%
+        \ifx\rebuttal@currentHref\@undefined\else
+          \global\let\@currentHref\rebuttal@currentHref
+        \fi
       \endgroup
     \else
       #2%
