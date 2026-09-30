@@ -1158,6 +1158,12 @@
 % ignored}
 % The label of an answer is placed in the left margin. Therefore, the label
 % separation is removed while the label is typeset and restored afterwards.
+%
+% \changes{v0.2.0}{2026-10-01}{Fixed duplicate destinations of answers}
+% \textsf{hyperref} names the destination of a bookmark by appending its level
+% to the given name. The name of the answer bookmark must therefore differ from
+% the prefix of the answer counter destinations. Otherwise, both coincide if the
+% bookmark level equals the answer number.
 %    \begin{macrocode}
   \newenvironment{answer}{%
     \par\medskip
@@ -1166,7 +1172,7 @@
     \begin{trivlist}%
       \ifx\belowpdfbookmark\@undefined\else
         \belowpdfbookmark{\rebuttal@answerbookmark~\therebuttalcomment}%
-          {rebuttalanswer.\therebuttalanswer}%
+          {rebuttalanswerbookmark.\therebuttalanswer}%
       \fi
       \normalfont\rebuttal@answerfont
       \rebuttal@labelsep\labelsep
