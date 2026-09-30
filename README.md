@@ -69,6 +69,23 @@ the original text and the second one the new text.
 The optional `label` option assigns a label to the annotation for referencing
 it. The `ref` option refers back to the original reviewer comment.
 
+### Annotating Floats, Captions, and Titles
+
+Annotations can be used in figures, tables, their captions, table cells,
+minipages, footnotes, and section titles. Since margin notes are not available
+within floats and boxes, the annotation label is typeset inline right after the
+annotated text instead:
+
+```latex
+\begin{figure}
+  \centering
+  \includegraphics{result}
+  \caption{Reconstruction \addition[ref=c:c1]{of the phantom}.}
+\end{figure}
+```
+
+The `inline` option forces inline labels everywhere.
+
 ### Annotating Multiple Paragraphs
 
 In addition to the markup commands, the package defines equivalent environments
@@ -98,11 +115,6 @@ The `ref` option of the markup commands may specify multiple labels:
 ```latex
 \addition[label=a:new,ref={c:c1,c:c2}]{new text}.
 ```
-
-## Limitations
-
-* Rebuttal markup cannot be used within floating environments such as `figure`
-  and `table`, or within the argument of the `\caption` command.
 
 ## License
 
